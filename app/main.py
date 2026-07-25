@@ -8,6 +8,15 @@ def main():
         command = input()
         if command == "exit":
             break
+
+        command_list = command.split()
+
+        if command_list[0] == "echo":
+            print(' '.join(command_list[1:]))
+            continue
+
+
+
         print(f"{command.rstrip()}: command not found")
         
         
