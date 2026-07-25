@@ -3,9 +3,14 @@ import sys
 
 def main():
     # TODO: Uncomment the code below to pass the first stage
-    sys.stdout.write("$ ")
-    command = sys.stdin.readline()
-    print(f"{command.rstrip()}: command not found")
+    while(1):
+        sys.stdout.write("$ ")
+        command = input()
+        print(f"$ {command.rstrip()}: command not found")
+        
+        
+
+    
 
     pass
 
