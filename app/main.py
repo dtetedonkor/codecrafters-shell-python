@@ -6,6 +6,8 @@ def main():
     while(1):
         sys.stdout.write("$ ")
         command = input()
+        if command == "exit":
+            break
         print(f"{command.rstrip()}: command not found")
         
         
