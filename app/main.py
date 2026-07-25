@@ -21,7 +21,7 @@ def main():
             if arguments in sh_builtin:
                 print(f"{arguments} is a shell builtin")
             else:
-                print(f"{arguments}: command not found")
+                print(f"{arguments}: not found")
             continue
 
         print(f"{command.rstrip()}: command not found")
