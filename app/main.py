@@ -20,7 +20,9 @@ def main():
         if command_list[0] == "type":
             if arguments in sh_builtin:
                 print(f"{arguments} is a shell builtin")
-                continue
+            else:
+                print(f"{arguments}: command not found")
+            continue
 
         print(f"{command.rstrip()}: command not found")
         
