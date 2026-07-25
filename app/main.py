@@ -1,5 +1,5 @@
 import sys
-import os
+import shutil
 
 
         
@@ -25,7 +25,7 @@ def main():
         if command_list[0] == "type": # type builtin handeling
             if arguments in sh_builtin:
                 print(f"{arguments} is a shell builtin")
-            elif os.path.exists(arguments):
+            elif shutil.which(arguments):
                 print("File exits")
             else:
                 print(f"{arguments}: not found")
