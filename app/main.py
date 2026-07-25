@@ -6,7 +6,7 @@ def main():
     while(1):
         sys.stdout.write("$ ")
         command = input()
-        print(f"$ {command.rstrip()}: command not found")
+        print(f"{command.rstrip()}: command not found")
         
         
 
