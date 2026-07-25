@@ -1,5 +1,5 @@
 import sys
-from pathlib import Path
+import os
 
 
         
@@ -7,9 +7,11 @@ from pathlib import Path
 def main():
     # TODO: Uncomment the code below to pass the first stage
     sh_builtin = {"exit","type","echo"} #builtin set for quick retreval 
+    PATH="/usr/bin:/usr/local/bin:$PATH"
     while(1):
         sys.stdout.write("$ ")
         command = input()
+
         if command == "exit":
             break
 
@@ -23,6 +25,8 @@ def main():
         if command_list[0] == "type": # type builtin handeling
             if arguments in sh_builtin:
                 print(f"{arguments} is a shell builtin")
+            elif os.path.exists(arguments):
+                print("File exits")
             else:
                 print(f"{arguments}: not found")
             continue
@@ -33,7 +37,6 @@ def main():
 
     
 
-    pass
 
     
 
