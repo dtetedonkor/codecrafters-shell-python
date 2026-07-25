@@ -26,7 +26,7 @@ def main():
             if arguments in sh_builtin:
                 print(f"{arguments} is a shell builtin")
             elif shutil.which(arguments):
-                print("File exits")
+                print(shutil.which(arguments))
             else:
                 print(f"{arguments}: not found")
             continue
