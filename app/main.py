@@ -32,10 +32,10 @@ def main():
             continue
 
         if shutil.which(command_list[0]):
-            subprocess.run(command_list,
+            print(subprocess.run(command_list,
                               capture_output=True,
                               text=True,
-                              check=True)    
+                              check=True))   
 
         print(f"{command.rstrip()}: command not found")
         
