@@ -59,7 +59,7 @@ def main():
             echo_builtin(sh)
             type_builtin(sh)
         else:
-              run_program(sh)
+            run_program(sh)
         
                
 
