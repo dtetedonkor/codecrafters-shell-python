@@ -30,6 +30,7 @@ def builtin_check (command_list) -> bool:
        return False
 
 def  run_program(command_list) -> None:
+         print("reached")
          if shutil.which(command_list[0]):
                    pl = subprocess.run(command_list,
                                      capture_output=True,
