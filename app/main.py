@@ -1,74 +1,89 @@
-import sys
-import os
+import shutil
 import subprocess
-from typing import Union
+import sys
+
+BUILTINS = {"exit", "echo", "type"}
 
 
-class Shell(object):
-    """Basic Shell class"""
+def my_shell():
+    """Read a command from the user."""
+    sys.stdout.write("$ ")
+    return input().split()
 
-    __return_code: int = 0
-    __path: list[str] = []
-    __METHODS: list[str] = []
 
-    def __init__(self) -> None:
-        super().__init__()
-        self.__path = os.environ["PATH"].split(":")
-        self.__METHODS = [
-            f
-            for f in dir(self)
-            if callable(getattr(self, f)) and "__" not in f and not f.startswith("_")
-        ]  # pyright: ignore[reportConstantRedefinition, reportAny, reportAttributeAccessIssue, reportUnknownMemberType]
-        self.METHODS: list = self.__METHODS
+def builtin_check(command_list):
+    """Return True if the command is a shell builtin."""
+    return command_list and command_list[0] in BUILTINS
 
-    def exit(self) -> None:
-        sys.exit(0)
 
-    def echo(self, *args: list[str]) -> None:
-        print(f"{' '.join(args)}")  # pyright: ignore[reportCallIssue, reportArgumentType]
-        self.__return_code = 0
+def exit_builtin(command_list):
+    """Return True if the shell should exit."""
+    return command_list[0] == "exit"
 
-    def __walk_path(self, command: str) -> str:
-        for p in self.__path:
-            path: str = os.path.join(p, command)
-            if os.path.exists(path) and os.access(path, os.X_OK):
-                return path
-        return ""
 
-    def _valid_command(self, command: str) -> function | str | None:
-        if command in self.__METHODS:
-            return getattr(self, command)
-        elif exe := self.__walk_path(command):
-            return exe
-        else:
-            return None
+def echo_builtin(command_list):
+    """Implement the echo builtin."""
+    arguments = " ".join(command_list[1:])
+    print(arguments)
 
-    def type(self, *args) -> None:  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
-        command: str = args[0]  # pyright: ignore[reportUnknownVariableType]
-        targ = self._valid_command(command)
-        if callable(targ):
-            print(f"{command} is a shell builtin")
-        elif targ:
-            print(f"{command} is {targ}")
+
+def type_builtin(command_list):
+    """Implement the type builtin."""
+    command = command_list[1]
+
+    if command in BUILTINS:
+        print(f"{command} is a shell builtin")
+    else:
+        program = shutil.which(command)
+        if program:
+            print(program)
         else:
             print(f"{command}: not found")
-            self.__return_code = 0
+
+
+def run_builtin(command_list):
+    """Dispatch to the appropriate builtin."""
+    command = command_list[0]
+
+    if command == "echo":
+        echo_builtin(command_list)
+
+    elif command == "type":
+        type_builtin(command_list)
+
+
+def run_program(command_list):
+    """Run an external program."""
+    program = shutil.which(command_list[0])
+
+    if program:
+        result = subprocess.run(
+            command_list,
+            capture_output=True,
+            text=True,
+        )
+        sys.stdout.write(result.stdout)
+    else:
+        print(f"{command_list[0]}: command not found")
 
 
 def main():
-    my_shell = Shell()
     while True:
-        _ = sys.stdout.write("$ ")
-        usr_input = input()
-        first = usr_input.split()[0]
-        if run := my_shell._valid_command(first):
-            if callable(run):
-                run(*usr_input.split()[1:])
-            else:
-                print(subprocess.check_output(usr_input.split()).decode(), end="")
+        command_list = my_shell()
 
+        # Ignore blank lines
+        if not command_list:
+            continue
+
+        # Exit builtin
+        if exit_builtin(command_list):
+            break
+
+        # Builtins
+        if builtin_check(command_list):
+            run_builtin(command_list)
         else:
-            print(f"{first}: command not found")
+            run_program(command_list)
 
 
 if __name__ == "__main__":
