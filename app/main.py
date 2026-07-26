@@ -1,9 +1,11 @@
 import shutil
 import subprocess
 import sys
-
+import os
 BUILTINS = {"exit", "echo", "type","pwd"}
 
+def pwd_builtin() -> None:
+        print(os.getcwd())
 
 def my_shell():
     """Read a command from the user."""
@@ -50,6 +52,8 @@ def run_builtin(command_list):
 
     elif command == "type":
         type_builtin(command_list)
+    elif command == "pwd":
+        pwd_builtin(command_list)
 
 
 def run_program(command_list):
