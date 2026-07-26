@@ -35,9 +35,8 @@ def main():
             pl = subprocess.run(command_list,
                               capture_output=True,
                               text=True) 
-            print(pl.stdout)
-            sys.stdout.write("$ ")
-            continue
+            sys.stdout.write(pl.stdout)
+           
             
 
         print(f"{command.rstrip()}: command not found")
