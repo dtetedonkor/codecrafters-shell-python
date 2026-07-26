@@ -36,6 +36,7 @@ def main():
                               capture_output=True,
                               text=True) 
             print(pl.stdout)
+            sys.stdout.write("$ ")
             continue
             
 
