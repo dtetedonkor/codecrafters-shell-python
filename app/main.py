@@ -2,7 +2,7 @@ import shutil
 import subprocess
 import sys
 
-BUILTINS = {"exit", "echo", "type"}
+BUILTINS = {"exit", "echo", "type","pwd"}
 
 
 def my_shell():
