@@ -36,7 +36,7 @@ def main():
                               capture_output=True,
                               text=True) 
             sys.stdout.write(pl.stdout)
-           
+            continue
             
 
         print(f"{command.rstrip()}: command not found")
