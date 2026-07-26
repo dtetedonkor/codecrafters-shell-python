@@ -1,5 +1,6 @@
 import sys
 import shutil
+import subprocess
 
 
         
@@ -7,7 +8,6 @@ import shutil
 def main():
     # TODO: Uncomment the code below to pass the first stage
     sh_builtin = {"exit","type","echo"} #builtin set for quick retreval 
-    PATH="/usr/bin:/usr/local/bin:$PATH"
     while(1):
         sys.stdout.write("$ ")
         command = input()
@@ -30,6 +30,12 @@ def main():
             else:
                 print(f"{arguments}: not found")
             continue
+
+        if shutil.which(command_list[0]):
+            subprocess.run(command_list,
+                              capture_output=True,
+                              text=True,
+                              check=True)    
 
         print(f"{command.rstrip()}: command not found")
         
