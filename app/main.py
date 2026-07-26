@@ -37,6 +37,7 @@ def main():
                               text=True,
                               check=True) 
             print(pl.stdout)
+            continue
 
         print(f"{command.rstrip()}: command not found")
         
