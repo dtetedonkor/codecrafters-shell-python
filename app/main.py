@@ -4,7 +4,7 @@ import sys
 import os
 BUILTINS = {"exit", "echo", "type","pwd"}
 
-def pwd_builtin() -> None:
+def pwd_builtin(command_list) -> None:
         print(os.getcwd())
 
 def my_shell():
