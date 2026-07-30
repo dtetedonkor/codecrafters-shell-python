@@ -85,13 +85,13 @@ def cd_builtin(_args: str) -> None:
         if _args ==  '~':
             try:
                 os.chdir(os.getenv("HOME"))
-            except (OSError, TypeError) as e:
+            except OSError:
                 print(f"cd: {_args}: No such file or directory")
             
         else:
              try:
                 os.chdir(_args)
-             except (OSError, TypeError) as e:
+             except OSError:
                 print(f"cd: {_args}: No such file or directory")
                         
     
