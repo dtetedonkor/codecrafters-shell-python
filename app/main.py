@@ -80,11 +80,21 @@ def run_program(command_list: list) -> None:
     else:
         print(f"{command_list[0]}: command not found")
 
-def cd_builtin(_args: list) -> None:
-    try:
-        os.chdir(_args)
-    except:
-        print(f"cd: {_args}: No such file or directory")
+def cd_builtin(_args: str) -> None:
+  
+        if _args ==  '~':
+            try:
+                os.chdir(os.getenv("HOME"))
+            except (OSError, TypeError) as e:
+                print(f"cd: {_args}: No such file or directory")
+            
+        else:
+             try:
+                os.chdir(_args)
+             except (OSError, TypeError) as e:
+                print(f"cd: {_args}: No such file or directory")
+                        
+    
 
 def main():
     while True:
