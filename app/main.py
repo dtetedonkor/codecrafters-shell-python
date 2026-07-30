@@ -20,15 +20,15 @@ def builtin_check(command_list :list)  -> list:
     return command_list and command_list[0] in BUILTINS
 
 
-def exit_builtin(command_list: list):
+def exit_builtin()-> None:
     """Return True if the shell should exit."""
-    return command_list[0] == "exit"
+    sys.exit(0)
 
 
-def echo_builtin(command_list: list) -> None:
+def echo_builtin(_args: str) -> None:
     """Implement the echo builtin."""
-    arguments = " ".join(command_list[1:])
-    print(arguments)
+
+    print(_args)
 
 
 def type_builtin(command_list: list):
@@ -51,9 +51,10 @@ def run_builtin(command_list: list):
     arguments = " ".join(command_list[1:])
 
     match command:
+        case "exit":
+            exit_builtin()
         case "echo":
-            echo_builtin(command_list)
-
+            echo_builtin(arguments)
         case "type":
             type_builtin(command_list)
 
@@ -62,6 +63,7 @@ def run_builtin(command_list: list):
 
         case "cd":
             cd_builtin(arguments)
+        
 
 
 def run_program(command_list: list) -> None:
@@ -91,10 +93,6 @@ def main():
         # Ignore blank lines
         if not command_list:
             continue
-
-        # Exit builtin
-        if exit_builtin(command_list):
-            break
 
         # Builtins
         if builtin_check(command_list):
