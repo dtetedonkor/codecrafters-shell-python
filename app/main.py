@@ -15,16 +15,12 @@ def parser_input(user_input: str) -> list:
             # res.append("".join(temp))
             # temp.clear()
             in_quotes = not in_quotes
-            continue
-        
-        if _ == " " and in_quotes == True:
-            temp.append(_)
-        if _ == " " and in_quotes == False:
+        elif _ == " " and in_quotes == False:
             if temp:
                 res.append("".join(temp))
             temp.clear()
-            continue
-        temp.append(_)
+        else:
+            temp.append(_)
     res.append("".join(temp)) 
     temp.clear() 
     return res
