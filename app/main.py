@@ -8,12 +8,21 @@ BUILTINS = {"exit", "echo", "type","pwd","cd"}
 def parser_input(user_input: str) -> list:
 
     in_quotes = False
+    in_double_quotes = False
     temp = list()
     res = list()
     for _ in user_input:
-        if _ == "'":
-            # res.append("".join(temp))
-            # temp.clear()
+
+        if _ == '"':
+            in_double_quotes = not in_double_quotes
+
+        # condition for when double quotes with a single quote in it 
+
+        if _ == "'" and in_double_quotes:
+            temp.append(_)
+            continue
+
+        if _ == "'" or _ == '"':
             in_quotes = not in_quotes
         elif _ == " " and in_quotes == False:
             if temp:
@@ -26,11 +35,10 @@ def parser_input(user_input: str) -> list:
     return res
 
 def pwd_builtin() -> None:
-    """Implement echo builtin."""
+   
     print(os.getcwd())
 
 def my_shell() -> list:
-    """Read a command from the user."""
     
     sys.stdout.write("$ ")
     _input  = input()
@@ -38,7 +46,6 @@ def my_shell() -> list:
     return parsed_input
 
 def builtin_check(command_list :list)  -> list:
-    """Return True if the command is a shell builtin."""
     return command_list and command_list[0] in BUILTINS
 
 
@@ -66,7 +73,7 @@ def type_builtin(command_list: list):
         else:
             print(f"{command}: not found")
 
-## change this to a switch statent in the future for now keep
+
 def run_builtin(command_list: list):
     """Dispatch to the appropriate builtin."""
     command: str = command_list[0]
