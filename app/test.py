@@ -1,31 +1,17 @@
-import sys
+class Shell:
+    def __init__(self):
+        self.running = True
 
-## bug where entering nothing 
-class shell:
-    def __init__(self,_input):
-        self._input = _input
-
-    def builtin_exit(self):
-        if self.command == "exit":
-            sys.exit(0)
-
-    def test_print_command(self):
-        print(self.command)
-
+    def run_command(self, command):
+        print(f"Running: {command}")
 
 
 def main():
-    init_input = input()
+    shell = Shell()
 
-    sh = shell(init_input)
-    
-    while(1):
-        sys.stdout.write("$ ")
-        command = input()
-        sh.builtin_exit()
-        sh.test_print_command()
-        sys.stdout.flush()
-
+    while shell.running:
+        command = input("$ ")
+        shell.run_command(command)
 
 
 if __name__ == "__main__":

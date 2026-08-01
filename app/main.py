@@ -5,15 +5,41 @@ import os
 
 BUILTINS = {"exit", "echo", "type","pwd","cd"}
 
+def parser_input(user_input: str) -> list:
+
+    in_quotes = False
+    temp = list()
+    res = list()
+    for _ in user_input:
+        if _ == "'":
+            # res.append("".join(temp))
+            # temp.clear()
+            in_quotes = not in_quotes
+            continue
+        
+        if _ == " " and in_quotes == True:
+            temp.append(_)
+        if _ == " " and in_quotes == False:
+            if temp:
+                res.append("".join(temp))
+            temp.clear()
+            continue
+        temp.append(_)
+    res.append("".join(temp)) 
+    temp.clear() 
+    return res
+
 def pwd_builtin() -> None:
     """Implement echo builtin."""
     print(os.getcwd())
 
-def my_shell():
+def my_shell() -> list:
     """Read a command from the user."""
+    
     sys.stdout.write("$ ")
-    return input().split()
-
+    _input  = input()
+    parsed_input  = parser_input(_input)
+    return parsed_input
 
 def builtin_check(command_list :list)  -> list:
     """Return True if the command is a shell builtin."""
@@ -97,6 +123,8 @@ def cd_builtin(_args: str) -> None:
     
 
 def main():
+
+    
     while True:
         command_list = my_shell()
 
