@@ -66,7 +66,7 @@ def parser_input(user_input: str) -> list:
         parsed_input  = backslash_parser(user_input)
         return parsed_input
     
-    if "'" in char_set:
+    if "'" in char_set or '"' in char_set:
         parsed_input = quote_parser(user_input)
         return parsed_input
     else:
