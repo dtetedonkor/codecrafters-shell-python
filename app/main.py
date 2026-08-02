@@ -4,9 +4,8 @@ import sys
 import os
 
 BUILTINS = {"exit", "echo", "type","pwd","cd"}
-
-def parser_input(user_input: str) -> list:
-
+def quote_parser(user_input: str) -> list:
+    
     in_quotes = False
     in_double_quotes = False
     temp = list()
@@ -34,16 +33,55 @@ def parser_input(user_input: str) -> list:
     temp.clear() 
     return res
 
-def pwd_builtin() -> None:
-   
+def backslash_parser(user_input: str) -> list:
+  
+    res = list()
+    temp = list()
+    backslash = False 
+    for _ in user_input:
+        if _ == "\\" and not backslash:
+            backslash = True
+            continue
+
+        if _ == " " and backslash:
+            temp.append(_)
+            backslash = False
+        elif _ == " " and not backslash:
+            if temp:
+                res.append("".join(temp))
+            temp.clear()
+        else:
+            temp.append(_)
+            backslash = False
+    res.append("".join(temp)) 
+    temp.clear() 
+    return res
+    
+def parser_input(user_input: str) -> list:
+    """at some point will change to only perform certain parsing if """
+    char_set = set(user_input)
+    
+
+    if "\\" in char_set:
+        parsed_input  = backslash_parser(user_input)
+        return parsed_input
+    
+    if "'" in char_set:
+        parsed_input = quote_parser(user_input)
+        return parsed_input
+    else:
+        parsed_input = user_input.split()
+        return parsed_input
+    
+def pwd_builtin() -> None: 
     print(os.getcwd())
 
 def my_shell() -> list:
     
     sys.stdout.write("$ ")
     _input  = input()
-    parsed_input  = parser_input(_input)
-    return parsed_input
+    return parser_input(_input)
+    
 
 def builtin_check(command_list :list)  -> list:
     return command_list and command_list[0] in BUILTINS
@@ -60,7 +98,7 @@ def echo_builtin(_args: str) -> None:
     print(_args)
 
 
-def type_builtin(command_list: list):
+def type_builtin(command_list: list) -> None:
     """Implement the type builtin."""
     command = command_list[1]
 
@@ -74,7 +112,7 @@ def type_builtin(command_list: list):
             print(f"{command}: not found")
 
 
-def run_builtin(command_list: list):
+def run_builtin(command_list: list) -> None:
     """Dispatch to the appropriate builtin."""
     command: str = command_list[0]
     arguments = " ".join(command_list[1:])
