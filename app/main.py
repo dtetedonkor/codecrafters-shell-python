@@ -24,7 +24,7 @@ def quote_parser(user_input: str) -> list:
 
         if _ == "'" and in_double_quotes == False:
             in_quotes = not in_quotes
-        elif _ == " " and in_quotes == False:
+        elif _ == " " and (in_quotes == False and in_double_quotes == False):
             if temp:
                 res.append("".join(temp))
             temp.clear()
@@ -32,6 +32,7 @@ def quote_parser(user_input: str) -> list:
             temp.append(_)
                
     res.append("".join(temp)) 
+    #print(res)
     temp.clear() 
     return res
 
