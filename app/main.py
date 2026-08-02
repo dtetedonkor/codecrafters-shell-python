@@ -8,12 +8,18 @@ def quote_parser(user_input: str) -> list:
     
     in_quotes = False
     in_double_quotes = False
+    backslash = False
     temp = list()
     res = list()
     for _ in user_input:
-
-        if _ == '"' and in_quotes == False:
+        if _ == "\\" and backslash == False:
+            backslash = True
+            continue
+        if _ == '"' and in_quotes == False and backslash == False:
             in_double_quotes = not in_double_quotes
+        elif backslash and in_double_quotes:
+             temp.append(_)
+             backslash = False
         elif _ == "'" and in_double_quotes == False:
             in_quotes = not in_quotes
         elif _ == " " and (in_quotes == False and in_double_quotes == False):
