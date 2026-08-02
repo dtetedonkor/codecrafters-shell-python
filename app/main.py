@@ -14,15 +14,7 @@ def quote_parser(user_input: str) -> list:
 
         if _ == '"' and in_quotes == False:
             in_double_quotes = not in_double_quotes
-            continue
-
-        # condition for when in double quotes with a single quote in it 
-        #echo 'example\"test'
-        if _ == "'" and in_double_quotes:
-            temp.append(_)
-            continue
-
-        if _ == "'" and in_double_quotes == False:
+        elif _ == "'" and in_double_quotes == False:
             in_quotes = not in_quotes
         elif _ == " " and (in_quotes == False and in_double_quotes == False):
             if temp:
