@@ -12,16 +12,17 @@ def quote_parser(user_input: str) -> list:
     res = list()
     for _ in user_input:
 
-        if _ == '"':
+        if _ == '"' and in_quotes == False:
             in_double_quotes = not in_double_quotes
+            continue
 
-        # condition for when double quotes with a single quote in it 
-
+        # condition for when in double quotes with a single quote in it 
+        #echo 'example\"test'
         if _ == "'" and in_double_quotes:
             temp.append(_)
             continue
 
-        if _ == "'" or _ == '"':
+        if _ == "'" and in_double_quotes == False:
             in_quotes = not in_quotes
         elif _ == " " and in_quotes == False:
             if temp:
@@ -29,6 +30,7 @@ def quote_parser(user_input: str) -> list:
             temp.clear()
         else:
             temp.append(_)
+               
     res.append("".join(temp)) 
     temp.clear() 
     return res
@@ -59,19 +61,14 @@ def backslash_parser(user_input: str) -> list:
     
 def parser_input(user_input: str) -> list:
     """at some point will change to only perform certain parsing if """
-    char_set = set(user_input)
-    
+    for _ in user_input:
+        if _ == "'" or _ == '"':
+            return quote_parser(user_input)
+        elif _ == "\\":
+            return backslash_parser(user_input)
+        
+    return user_input.split()
 
-    if "\\" in char_set:
-        parsed_input  = backslash_parser(user_input)
-        return parsed_input
-    
-    if "'" in char_set or '"' in char_set:
-        parsed_input = quote_parser(user_input)
-        return parsed_input
-    else:
-        parsed_input = user_input.split()
-        return parsed_input
     
 def pwd_builtin() -> None: 
     print(os.getcwd())
