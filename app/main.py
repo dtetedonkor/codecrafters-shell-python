@@ -12,7 +12,7 @@ def quote_parser(user_input: str) -> list:
     temp = list()
     res = list()
     for _ in user_input:
-        if _ == "\\" and backslash == False:
+        if _ == "\\" and backslash == False and not in_quotes:
             backslash = True
             continue
         if _ == '"' and in_quotes == False and backslash == False:
