@@ -1,5 +1,5 @@
-from shell import Shell
-from parser import _Parser
+from .shell import Shell
+from .parser import _Parser
 
 
 def main():
