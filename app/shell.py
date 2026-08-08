@@ -3,6 +3,7 @@ import shutil
 import subprocess
 import os
 
+
 class Shell:
     def __init__(self):
         self.builtin = {
@@ -72,7 +73,6 @@ class Shell:
 
         if cmd in self.builtin:
             print(f"{cmd} is a shell builtin")
-
         else:
             prog = shutil.which(cmd)
 
