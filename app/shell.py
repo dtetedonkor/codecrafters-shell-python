@@ -27,7 +27,11 @@ class Shell:
                 text=True,
             )
 
-            dest.write(result)
+            if type(dest) == str:
+                with open(dest,'w') as f:
+                    f.write(result)
+            else:
+                    dest.write(result)
 
         else:
             print(f"{command_list[0]}: command not found")
