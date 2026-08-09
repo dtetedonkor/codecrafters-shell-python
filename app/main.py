@@ -12,7 +12,11 @@ def main():
         if not user_in:
             continue
 
-        parsed_input = parser.parse(user_in)
+        try:
+            parsed_input = parser.parse(user_in)
+        except ValueError as e:
+            print(f"shell: {e}")
+            continue
 
         if not parsed_input:
             continue
