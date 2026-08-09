@@ -15,30 +15,31 @@ class Shell:
             "exit": self._exit,
         }
      
-
-    def run_program(self, command_list: list,dest = sys.stdout) -> None:
-        """Run an external program."""
+    def run_program(self, command_list: list, dest=sys.stdout) -> None:
+    
         program = shutil.which(command_list[0])
 
-        if program:
-            
-            if type(dest) == str:
-                with open(dest,'w') as f:
-                    subprocess.run(
-                                    command_list,
-                                    text=True,
-                                    stdout=f,
-                                )
-            else:
-                    dest.write(
-                        subprocess.run(
-                            command_list,
-                            capture_output=True,
-                            text=True,
-                        ))
+        if not program:
+            print(f"{command_list[0]}: command not found")
+            return
+
+        if isinstance(dest, str):
+            with open(dest, "w") as f:
+                subprocess.run(
+                    command_list,
+                    text=True,
+                    stdout=f,
+                )
 
         else:
-            print(f"{command_list[0]}: command not found")
+            result = subprocess.run(
+                command_list,
+                capture_output=True,
+                text=True,
+            )
+
+            dest.write(result.stdout)
+            dest.write(result.stderr)
 
     def execute(self, parsed: dict) -> None:
         command_list = parsed["command"]
