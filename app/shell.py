@@ -4,7 +4,6 @@ import subprocess
 import os
 
 
-
 class Shell:
     def __init__(self):
         self.builtin = {
@@ -14,8 +13,15 @@ class Shell:
             "type": self._type,
             "exit": self._exit,
         }
-     
-    def run_program(self, command_list: list, stdout=None, stderr=None) -> None:
+
+    def run_program(
+        self,
+        command_list: list,
+        stdout=None,
+        stderr=None,
+        stdout_append=False,
+        stderr_append=False
+    ) -> None:
 
         program = shutil.which(command_list[0])
 
@@ -33,14 +39,18 @@ class Shell:
         stderr_file = None
 
         try:
+            # stdout
             if isinstance(stdout, str):
-                stdout_file = open(stdout, "w")
+                mode = "a" if stdout_append else "w"
+                stdout_file = open(stdout, mode)
                 stdout_dest = stdout_file
             else:
                 stdout_dest = stdout
 
+            # stderr
             if isinstance(stderr, str):
-                stderr_file = open(stderr, "w")
+                mode = "a" if stderr_append else "w"
+                stderr_file = open(stderr, mode)
                 stderr_dest = stderr_file
             else:
                 stderr_dest = stderr
@@ -63,6 +73,8 @@ class Shell:
         command_list = parsed["command"]
         stdout = parsed["stdout"]
         stderr = parsed["stderr"]
+        stdout_append = parsed["stdout_append"]
+        stderr_append = parsed["stderr_append"]
 
         if not command_list:
             return
@@ -77,14 +89,18 @@ class Shell:
             stderr_file = None
 
             try:
+                # stdout
                 if stdout:
-                    stdout_file = open(stdout, "w")
+                    mode = "a" if stdout_append else "w"
+                    stdout_file = open(stdout, mode)
                     stdout_dest = stdout_file
                 else:
                     stdout_dest = sys.stdout
 
+                # stderr
                 if stderr:
-                    stderr_file = open(stderr, "w")
+                    mode = "a" if stderr_append else "w"
+                    stderr_file = open(stderr, mode)
                     stderr_dest = stderr_file
                 else:
                     stderr_dest = sys.stderr
@@ -102,12 +118,26 @@ class Shell:
             self.run_program(
                 command_list,
                 stdout,
-                stderr
+                stderr,
+                stdout_append,
+                stderr_append
             )
-    def _exit(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
+
+    def _exit(
+        self,
+        args,
+        stdout=sys.stdout,
+        stderr=sys.stderr
+    ) -> None:
         sys.exit(0)
 
-    def _cd(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
+    def _cd(
+        self,
+        args,
+        stdout=sys.stdout,
+        stderr=sys.stderr
+    ) -> None:
+
         if not args:
             path = os.path.expanduser("~")
         else:
@@ -115,26 +145,47 @@ class Shell:
 
         try:
             os.chdir(path)
+
         except OSError:
-            print(f"cd: {path}: No such file or directory")
+            stderr.write(
+                f"cd: {path}: No such file or directory\n"
+            )
 
-    def _echo(self, args, stdout=sys.stdout, stderr=sys.stderr):
+    def _echo(
+        self,
+        args,
+        stdout=sys.stdout,
+        stderr=sys.stderr
+    ):
         stdout.write(" ".join(args) + "\n")
-    def _pwd(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
-        print(os.getcwd())
 
-    def _type(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
+    def _pwd(
+        self,
+        args,
+        stdout=sys.stdout,
+        stderr=sys.stderr
+    ) -> None:
+        stdout.write(os.getcwd() + "\n")
+
+    def _type(
+        self,
+        args,
+        stdout=sys.stdout,
+        stderr=sys.stderr
+    ) -> None:
+
         if not args:
             return
 
         cmd = args[0]
 
         if cmd in self.builtin:
-            print(f"{cmd} is a shell builtin")
+            stdout.write(f"{cmd} is a shell builtin\n")
+
         else:
             prog = shutil.which(cmd)
 
             if prog:
-                print(prog)
+                stdout.write(prog + "\n")
             else:
-                print(f"{cmd}: not found")
+                stdout.write(f"{cmd}: not found\n")
