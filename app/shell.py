@@ -26,7 +26,7 @@ class Shell:
                 capture_output=True,
                 text=True,
             )
-
+            print(result)
             if type(dest) == str:
                 with open(dest,'w') as f:
                     f.write(result)
