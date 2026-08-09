@@ -123,7 +123,7 @@ class Shell:
     def _pwd(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
         print(os.getcwd())
 
-    def _type(self, args: list) -> None:
+    def _type(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
         if not args:
             return
 
