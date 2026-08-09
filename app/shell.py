@@ -21,17 +21,24 @@ class Shell:
         program = shutil.which(command_list[0])
 
         if program:
-            result = subprocess.run(
-                command_list,
-                capture_output=True,
-                text=True,
-            )
-            print(result)
+            
             if type(dest) == str:
                 with open(dest,'w') as f:
-                    f.write(result)
+                    subprocess.run(
+                                    command_list,
+                                    capture_output=True,
+                                    text=True,
+                                    stdout=f,
+                                    check=True
+                                )
             else:
-                    dest.write(result)
+                    dest.write(
+                        subprocess.run(
+                            command_list,
+                            capture_output=True,
+                            text=True,
+                            check=True
+                        ))
 
         else:
             print(f"{command_list[0]}: command not found")
