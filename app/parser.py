@@ -31,44 +31,35 @@ class _Parser:
             token = tokens[i]
 
             # stdout: > or >>
-            if token == ">":
+            if token == ">>":
+                i += 1
 
-                if i + 1 < len(tokens) and tokens[i + 1] == ">":
-                    # >>
-                    i += 2
+                if i < len(tokens):
+                    result["stdout"] = tokens[i]
+                    result["stdout_append"] = True
 
-                    if i < len(tokens):
-                        result["stdout"] = tokens[i]
-                        result["stdout_append"] = True
+            elif token == ">":
+                i += 1
 
-                else:
-                    # >
-                    i += 1
-
-                    if i < len(tokens):
-                        result["stdout"] = tokens[i]
-                        result["stdout_append"] = False
+                if i < len(tokens):
+                    result["stdout"] = tokens[i]
+                    result["stdout_append"] = False
 
             # stderr: 2> or 2>>
             elif token == "2":
+                if i + 1 < len(tokens) and tokens[i + 1] == ">>":
+                    i += 2
 
-                if i + 1 < len(tokens) and tokens[i + 1] == ">":
+                    if i < len(tokens):
+                        result["stderr"] = tokens[i]
+                        result["stderr_append"] = True
 
-                    # 2>>
-                    if i + 2 < len(tokens) and tokens[i + 2] == ">":
-                        i += 3
+                elif i + 1 < len(tokens) and tokens[i + 1] == ">":
+                    i += 2
 
-                        if i < len(tokens):
-                            result["stderr"] = tokens[i]
-                            result["stderr_append"] = True
-
-                    # 2>
-                    else:
-                        i += 2
-
-                        if i < len(tokens):
-                            result["stderr"] = tokens[i]
-                            result["stderr_append"] = False
+                    if i < len(tokens):
+                        result["stderr"] = tokens[i]
+                        result["stderr_append"] = False
 
                 else:
                     result["command"].append(token)
