@@ -26,7 +26,6 @@ class Shell:
                 with open(dest,'w') as f:
                     subprocess.run(
                                     command_list,
-                                    capture_output=True,
                                     text=True,
                                     stdout=f,
                                 )
