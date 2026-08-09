@@ -29,7 +29,6 @@ class Shell:
                                     capture_output=True,
                                     text=True,
                                     stdout=f,
-                                    check=True
                                 )
             else:
                     dest.write(
@@ -37,7 +36,6 @@ class Shell:
                             command_list,
                             capture_output=True,
                             text=True,
-                            check=True
                         ))
 
         else:
