@@ -4,6 +4,7 @@ import subprocess
 import os
 
 
+
 class Shell:
     def __init__(self):
         self.builtin = {
@@ -13,8 +14,9 @@ class Shell:
             "type": self._type,
             "exit": self._exit,
         }
+     
 
-    def run_program(self, command_list: list) -> None:
+    def run_program(self, command_list: list,dest = sys.stdout) -> None:
         """Run an external program."""
         program = shutil.which(command_list[0])
 
@@ -25,13 +27,15 @@ class Shell:
                 text=True,
             )
 
-            sys.stdout.write(result.stdout)
-            sys.stderr.write(result.stderr)
+            dest.write(result)
 
         else:
             print(f"{command_list[0]}: command not found")
 
-    def execute(self, command_list: list) -> None:
+    def execute(self, parsed: dict) -> None:
+        command_list = parsed["command"]
+        stdout = parsed["stdout"]
+
         if not command_list:
             return
 
@@ -41,14 +45,22 @@ class Shell:
         builtin = self.builtin.get(command)
 
         if builtin:
-            builtin(args)
-        else:
-            self.run_program(command_list)
+            if stdout is not None:
+                builtin(args, stdout)
+            else:
+                builtin(args)
 
-    def _exit(self, args: list) -> None:
+        else:
+            if stdout is not None:
+                self.run_program(command_list, stdout)
+            else:
+                self.run_program(command_list)
+        
+
+    def _exit(self, args: list, dest=sys.stdout) -> None:
         sys.exit(0)
 
-    def _cd(self, args: list) -> None:
+    def _cd(self, args: list, dest=sys.stdout) -> None:
         if not args:
             path = os.path.expanduser("~")
         else:
@@ -59,8 +71,12 @@ class Shell:
         except OSError:
             print(f"cd: {path}: No such file or directory")
 
-    def _echo(self, args: list) -> None:
-        print(" ".join(args))
+    def _echo(self, args: list,dest = sys.stdout) -> None:
+        if type(dest) == str:
+            with open(dest,'w') as f:
+                f.write(" ".join(args) + "\n")
+        else:
+            dest.write(" ".join(args) + "\n")
 
     def _pwd(self, args: list) -> None:
         print(os.getcwd())
