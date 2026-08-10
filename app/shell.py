@@ -14,6 +14,7 @@ class Shell:
             "exit": self._exit,
         }
         self.BUILTIN = ["cd","pwd","type","exit"]
+        
     def completer(self,text,state):
         options = [c for c in self.BUILTIN if c.startswith(text)]
         if state < len(options):
