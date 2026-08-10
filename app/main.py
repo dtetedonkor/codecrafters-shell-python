@@ -1,6 +1,6 @@
 from .shell import Shell
 from .parser import _Parser
-
+import readline
 
 def main():
     parser = _Parser()
@@ -8,7 +8,8 @@ def main():
 
     while True:
         user_in = input("$ ")
-
+        readline.set_completer(shell.completer)
+        readline.parse_and_bind("tab: Complete")
         if not user_in:
             continue
 
