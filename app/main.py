@@ -6,7 +6,7 @@ def main():
     parser = _Parser()
     shell = Shell()
     readline.set_completer(shell.completer)
-    readline.parse_and_bind("tab: Complete")
+    readline.parse_and_bind("Tab: Complete")
     while True:
         user_in = input("$ ")
         if not user_in:

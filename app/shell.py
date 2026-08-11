@@ -18,7 +18,7 @@ class Shell:
     def completer(self,text,state):
         options = [c for c in self.BUILTIN if c.startswith(text)]
         if state < len(options):
-            return options[state]
+            return options[state] + " "
         return None
 
     def run_program(
