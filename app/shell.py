@@ -2,6 +2,7 @@ import sys
 import shutil
 import subprocess
 import os
+from pathlib import Path
 
 
 class Shell:
@@ -14,8 +15,33 @@ class Shell:
             "exit": self._exit,
         }
         self.BUILTIN = ["cd","pwd","type","exit","echo"]
+        
 
+    def get_posix_executables() -> list[str]:
+
+        path_dirs = os.get_exec_path()
+        executable_files = set()
+
+        for dir_str in path_dirs:
+            path_obj = Path(dir_str)
+            
+            if not path_obj.is_dir():
+                continue
+                
+            try:
+                for child in path_obj.iterdir():
+                    # os.access accepts Path objects directly
+                    if child.is_file() and os.access(child, os.X_OK):
+                        # Convert the absolute, resolved path to a plain string
+                        executable_files.add(str(child.resolve()))
+            except PermissionError:
+                continue
+
+        return sorted(list(executable_files))
+    
     def completer(self,text,state):
+        exec_list = self.get_posix_executables()
+        self.BUILTIN += exec_list
         options = [c for c in self.BUILTIN if c.startswith(text)]
         if state < len(options):
             return options[state] + " "
@@ -31,7 +57,7 @@ class Shell:
     ) -> None:
 
         program = shutil.which(command_list[0])
-
+        os.get_exec_path()
         if not program:
             print(f"{command_list[0]}: command not found")
             return
