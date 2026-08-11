@@ -17,34 +17,40 @@ class Shell:
         self.BUILTIN = ["cd","pwd","type","exit","echo"]
         
 
-    def get_posix_executables() -> list[str]:
-
+    def get_posix_executables(self) -> list[str]:
         path_dirs = os.get_exec_path()
         executable_files = set()
 
         for dir_str in path_dirs:
             path_obj = Path(dir_str)
-            
+
             if not path_obj.is_dir():
                 continue
-                
+
             try:
                 for child in path_obj.iterdir():
-                    # os.access accepts Path objects directly
                     if child.is_file() and os.access(child, os.X_OK):
-                        # Convert the absolute, resolved path to a plain string
-                        executable_files.add(str(child.resolve()))
+                        executable_files.add(child.name)
+
             except PermissionError:
                 continue
 
-        return sorted(list(executable_files))
-    
-    def completer(self,text,state):
+        return sorted(executable_files)
+
+    def completer(self, text, state):
         exec_list = self.get_posix_executables()
-        self.BUILTIN += exec_list
-        options = [c for c in self.BUILTIN if c.startswith(text)]
+
+        commands = set(self.BUILTIN)
+        commands.update(exec_list)
+
+        options = sorted(
+            c for c in commands
+            if c.startswith(text)
+        )
+
         if state < len(options):
             return options[state] + " "
+
         return None
 
     def run_program(
