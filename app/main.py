@@ -5,11 +5,10 @@ import readline
 def main():
     parser = _Parser()
     shell = Shell()
-
+    readline.set_completer(shell.completer)
+    readline.parse_and_bind("tab: Complete")
     while True:
         user_in = input("$ ")
-        readline.set_completer(shell.completer)
-        readline.parse_and_bind("tab: Complete")
         if not user_in:
             continue
 
