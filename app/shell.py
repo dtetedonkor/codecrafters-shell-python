@@ -45,6 +45,7 @@ class Shell:
         
           # Check if the character right before the cursor is a space
         line_buffer = readline.get_line_buffer()
+        print(f"{line_buffer}")
         if  ' ' in line_buffer:
             curr_dir_set = self.get_dir_files()
             # This executes only if Tab was pressed immediately after a space
