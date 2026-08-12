@@ -1,9 +1,13 @@
 from .shell import Shell
-from .parser import _Parser
-import readline
+from .parser import Parser
+
+
+    
+
+
 
 def main():
-    parser = _Parser()
+    parser = Parser()
     shell = Shell()
     readline.set_completer(shell.completer)
     readline.parse_and_bind("Tab: Complete")

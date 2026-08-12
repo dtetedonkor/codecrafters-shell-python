@@ -1,8 +1,8 @@
 import shlex
 
 
-class _Parser:
-    def parse(self, user_in: str):
+class Parser:
+    def parse(self, user_in: str) -> dict:
         user_in = user_in.replace("1>", ">")
 
         lexer = shlex.shlex(

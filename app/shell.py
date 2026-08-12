@@ -3,7 +3,7 @@ import shutil
 import subprocess
 import os
 from pathlib import Path
-
+import readline
 
 class Shell:
     def __init__(self):
@@ -42,7 +42,18 @@ class Shell:
 
         commands = set(self.BUILTIN)
         commands.update(exec_list)
-
+            # Get the current cursor position
+        line_buffer = readline.get_line_buffer()
+        cursor_index = readline.get_begidx()
+        
+        # Check if the character right before the cursor is a space
+        if cursor_index > 0 and line_buffer[cursor_index - 1] == ' ':
+            # This executes only if Tab was pressed immediately after a space
+            if state == 0:
+                print(f"\n[System: Space detected before Tab at index {cursor_index}!]")
+                # Redisplay the prompt and current text to keep the UI clean
+                readline.forced_update_display()
+      
         options = sorted(
             c for c in commands
             if c.startswith(text)
@@ -109,6 +120,12 @@ class Shell:
                 stderr_file.close()
 
     def execute(self, parsed: dict) -> None:
+        """execute is the central funcntion that calls bulitins or 
+         executable functions to print to shell output.
+         It doesnt perform any actions just acts as forwarder.
+          It also manages redirects to standard stdout or stderr for
+           both builtin commands and executables """
+        
         command_list = parsed["command"]
         stdout = parsed["stdout"]
         stderr = parsed["stderr"]
