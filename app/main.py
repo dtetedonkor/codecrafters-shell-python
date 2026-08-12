@@ -1,5 +1,6 @@
 from .shell import Shell
 from .parser import Parser
+import readline
 
 
     
