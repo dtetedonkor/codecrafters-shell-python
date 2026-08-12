@@ -47,7 +47,7 @@ class Shell:
         line_buffer = readline.get_line_buffer()
         print(f"text: {text}")
         print(f"line_buffer: {line_buffer}")
-        if "/" in text:
+        if "/" in line_buffer:
                     #split text into two path and prefix
                     parts = text.rsplit('/',1)
                     files = [f for f in os.listdir(parts[0]) 
