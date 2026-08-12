@@ -60,7 +60,7 @@ class Shell:
                                 )
                     
                     if state < len(options):
-                        return parts[0]+ "/"+ options[state] + " "
+                        return options[state] + " "
                     return None
                     
         elif  ' ' in line_buffer:
