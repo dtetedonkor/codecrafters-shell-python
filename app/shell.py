@@ -49,11 +49,16 @@ class Shell:
         # print(f"line_buffer: {line_buffer}")
         if "/" in line_buffer:
                     #split text into two path and prefix
-                    parts = text.rsplit('/',1)
+                    last_str= line_buffer.rsplit(" ", 1)[-1]
+                    parts = last_str.rsplit('/',1)
+                    
                     files = [f for f in os.listdir(parts[0]) 
                                 if os.path.isfile(os.path.join(parts[0], f))]
-                    options = sorted(c for c in files
-                                        if c.startswith(parts[1]))
+                    options = sorted(
+                                    c for c in files
+                                    if c.startswith(parts[1])
+                                )
+                    
                     if state < len(options):
                         return parts[0]+ "/"+ options[state] + " "
                     return None
