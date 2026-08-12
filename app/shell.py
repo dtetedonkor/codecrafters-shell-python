@@ -17,7 +17,7 @@ class Shell:
         self.BUILTIN = ["cd","pwd","type","exit","echo"]
         
 
-    def get_posix_executables(self) -> list[str]:
+    def get_posix_executables(self) -> set[str]:
         path_dirs = os.get_exec_path()
         executable_files = set()
 
@@ -36,33 +36,49 @@ class Shell:
                 continue
 
         return sorted(executable_files)
+    def get_dir_files(self,path='.') ->set[str]:
+       """Return a set of filenames for all files (not directories) in the given path."""
+       return {f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))}
 
     def completer(self, text, state):
-        exec_list = self.get_posix_executables()
-
-        commands = set(self.BUILTIN)
-        commands.update(exec_list)
-            # Get the current cursor position
-        line_buffer = readline.get_line_buffer()
-        cursor_index = readline.get_begidx()
         
-        # Check if the character right before the cursor is a space
-        if cursor_index > 0 and line_buffer[cursor_index - 1] == ' ':
+        
+          # Check if the character right before the cursor is a space
+        line_buffer = readline.get_line_buffer()
+        if  ' ' in line_buffer:
+            curr_dir_set = self.get_dir_files()
             # This executes only if Tab was pressed immediately after a space
-            if state == 0:
-                print(f"\n[System: Space detected before Tab at index {cursor_index}!]")
-                # Redisplay the prompt and current text to keep the UI clean
-                readline.forced_update_display()
-      
-        options = sorted(
-            c for c in commands
-            if c.startswith(text)
-        )
 
-        if state < len(options):
-            return options[state] + " "
+            # Redisplay the prompt and current text to keep the UI clean
+            # readline.forced_update_display()
+            options = sorted(
+                    c for c in curr_dir_set
+                    if c.startswith(text)
+                )
+        
+            if state < len(options):
+                    return options[state] + " "
+        
+            return None
+            
+        else:
+            exec_list = self.get_posix_executables()
+            commands = set(self.BUILTIN)
+            commands.update(exec_list)
+                # Get the current cursor position
+        
+            # cursor_index = readline.get_begidx()
+            
+        
+            options = sorted(
+                c for c in commands
+                if c.startswith(text)
+            )
 
-        return None
+            if state < len(options):
+                return options[state] + " "
+
+            return None
 
     def run_program(
         self,
