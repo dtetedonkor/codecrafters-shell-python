@@ -45,7 +45,7 @@ class Shell:
         
           # Check if the character right before the cursor is a space
         line_buffer = readline.get_line_buffer()
-        print(f"text: {text}")
+        print(f"text: {state}")
         print(f"line_buffer: {line_buffer}")
         if "/" in text:
                     #split text into two path and prefix
