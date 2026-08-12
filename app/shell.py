@@ -45,7 +45,18 @@ class Shell:
         
           # Check if the character right before the cursor is a space
         line_buffer = readline.get_line_buffer()
-        if  ' ' in line_buffer:
+        if "/" in text:
+                    #split text into two path and prefix
+                    parts = text.rsplit('/',1)
+                    files = [f for f in os.listdir(parts[0]) 
+                                if os.path.isfile(os.path.join(parts[0], f))]
+                    options = sorted(c for c in files
+                                        if c.startswith(parts[1]))
+                    if state < len(options):
+                        return parts[0]+ "/"+ options[state] + " "
+                    return None
+                    
+        elif  ' ' in line_buffer:
             curr_dir_set = self.get_dir_files()
             # This executes only if Tab was pressed immediately after a space
 
@@ -60,17 +71,7 @@ class Shell:
                     return options[state] + " "
         
             return None
-        elif '/' in text:
-            #split text into two path and prefix
-            parts = text.rsplit('/',1)
-            files = [f for f in os.listdir(parts[0]) 
-                        if os.path.isfile(os.path.join(parts[0], f))]
-            options = sorted(c for c in files
-                                if c.startswith(parts[1]))
-            if state < len(options):
-                return parts[0]+ "/"+ options[state] + " "
-            return None
-            
+    
         else:
             exec_list = self.get_posix_executables()
             commands = set(self.BUILTIN)
