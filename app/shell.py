@@ -68,8 +68,8 @@ class Shell:
             options = sorted(c for c in files
                                 if c.startswith(parts[1]))
             if state < len(options):
-                return parts[0]+ options[state] + " "
-
+                return parts[0]+ "/"+ options[state] + " "
+            return None
             
         else:
             exec_list = self.get_posix_executables()
