@@ -68,7 +68,7 @@ class Shell:
             options = sorted(c for c in files
                                 if c.startswith(parts[1]))
             if state < len(options):
-                return options[state] + " "
+                return parts[0]+ options[state] + " "
 
             
         else:
