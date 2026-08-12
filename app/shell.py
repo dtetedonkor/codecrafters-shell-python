@@ -60,6 +60,16 @@ class Shell:
                     return options[state] + " "
         
             return None
+        elif '/' in text:
+            #split text into two path and prefix
+            parts = text.rsplit('/',1)
+            files = [f for f in os.listdir(parts[0]) 
+                        if os.path.isfile(os.path.join(parts[0], f))]
+            options = sorted(c for c in files
+                                if c.startswith(parts[1]))
+            if state < len(options):
+                return options[state] + " "
+
             
         else:
             exec_list = self.get_posix_executables()
