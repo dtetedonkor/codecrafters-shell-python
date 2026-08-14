@@ -40,23 +40,49 @@ class Shell:
        """Return a set of filenames for all files (not directories) in the given path."""
        return {f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))}
 
-    def completer(self, text, state):
+    def get_dir(self,path='.'):
+        return {f for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))}
+    
+    def completer(self, text: str, state: int):
         
-        
-          # Check if the character right before the cursor is a space
+        # Check if the character right before the cursor is a space
         line_buffer = readline.get_line_buffer()
-        # print(f"text: {text}")
-        # print(f"line_buffer: {line_buffer}")
-        if "/" in line_buffer:
+        if '/' in line_buffer:
+            last_str = line_buffer.rsplit(" ",1)[-1]
+            parts = last_str.rsplit('/',1)
+
+            dirs = self.get_dir(parts[0])
+            options = sorted (
+                            c for c in dirs
+                            if c.startswith(parts[1])
+                            )
+                                
+            if state < len(options):
+                return options[state] + "/"
+            return None
+        
+        elif '/' not in line_buffer:
+                    last_str = line_buffer.rsplit(" ",1)[-1]
+                    dirs = self.get_dir()
+                    options = sorted (
+                                    c for c in dirs
+                                    if c.startswith(last_str)
+                                    )
+                                        
+                    if state < len(options):
+                        return options[state] + "/"
+                    return None
+
+        elif "/" in line_buffer:
                     #split text into two path and prefix
                     last_str= line_buffer.rsplit(" ", 1)[-1]
                     parts = last_str.rsplit('/',1)
                     
                     files = [f for f in os.listdir(parts[0]) 
                                 if os.path.isfile(os.path.join(parts[0], f))]
-                    options = sorted(
-                                    c for c in files
-                                    if c.startswith(parts[1])
+                    options = sorted (
+                                c for c in files
+                                if c.startswith(parts[1])
                                 )
                     
                     if state < len(options):
