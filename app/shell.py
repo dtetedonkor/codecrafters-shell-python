@@ -52,7 +52,7 @@ class Shell:
             parts = last_str.rsplit('/',1)
             
             dirs = self.get_dir(parts[0])
-            print(f'dirs: {dirs}')
+            
             options = sorted (
                             c for c in dirs
                             if c.startswith(parts[1])
