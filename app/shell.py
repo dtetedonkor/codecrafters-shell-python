@@ -44,90 +44,65 @@ class Shell:
         return {f for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))}
     
     def completer(self, text: str, state: int):
-        
-        # Check if the character right before the cursor is a space
-        line_buffer : str = readline.get_line_buffer() 
-        if '/' in line_buffer:
-            last_str : list[str] = line_buffer.rsplit(" ",1)[-1]
-            parts : list[str]= last_str.rsplit('/',1)
-            
-            dirs = self.get_dir(parts[0])
-            dirs.update(self.get_dir_files(parts[0]))
-            
-            options = sorted (
-                            c for c in dirs
-                            if c.startswith(parts[1])
-                            )
-                                
-            if state < len(options):
-                if os.path.isdir(parts[0] + options[state]):
-                    return options[state] + "/"
-                else:
-                    return options[state] + " "
-            return None
-        
-        elif '/' not in line_buffer:
-                    last_str = line_buffer.rsplit(" ",1)[-1]
-                    dirs = self.get_dir()
-                    options = sorted (
-                                    c for c in dirs
-                                    if c.startswith(last_str)
-                                    )
-                                        
-                    if state < len(options):
-                        return options[state] + "/"
-                    return None
+        line_buffer = readline.get_line_buffer()
+        last_str = line_buffer.rsplit(" ", 1)[-1]
 
-        elif "/" in line_buffer:
-                    #split text into two path and prefix
-                    last_str= line_buffer.rsplit(" ", 1)[-1]
-                    parts = last_str.rsplit('/',1)
-                    
-                    files = [f for f in os.listdir(parts[0]) 
-                                if os.path.isfile(os.path.join(parts[0], f))]
-                    options = sorted (
-                                c for c in files
-                                if c.startswith(parts[1])
-                                )
-                    
-                    if state < len(options):
-                        return options[state] + " "
-                    return None
-                    
-        elif  ' ' in line_buffer:
-            curr_dir_set = self.get_dir_files()
-            # This executes only if Tab was pressed immediately after a space
+        # Completing a path
+        if "/" in last_str:
+            path, prefix = last_str.rsplit("/", 1)
 
-            # Redisplay the prompt and current text to keep the UI clean
-            # readline.forced_update_display()
+            entries = self.get_dir(path)
+            entries.update(self.get_dir_files(path))
+
             options = sorted(
-                    c for c in curr_dir_set
-                    if c.startswith(text)
-                )
-        
-            if state < len(options):
-                    return options[state] + " "
-        
-            return None
-    
-        else:
-            exec_list = self.get_posix_executables()
-            commands = set(self.BUILTIN)
-            commands.update(exec_list)
-                # Get the current cursor position
-        
-            # cursor_index = readline.get_begidx()
-            
-        
-            options = sorted(
-                c for c in commands
-                if c.startswith(text)
+                entry for entry in entries
+                if entry.startswith(prefix)
             )
 
-            if state < len(options):
-                return options[state] + " "
+            if state >= len(options):
+                return None
 
+            entry = options[state]
+            full_path = os.path.join(path, entry)
+
+            if os.path.isdir(full_path):
+                return entry + "/"
+
+            return entry + " "
+
+        # Completing a filename/directory in the current directory
+        if " " in line_buffer:
+            entries = self.get_dir()
+            entries.update(self.get_dir_files())
+
+            options = sorted(
+                entry for entry in entries
+                if entry.startswith(last_str)
+            )
+
+            if state >= len(options):
+                return None
+
+            entry = options[state]
+            if os.path.isdir(entry):
+                return entry + "/"
+
+            return entry + " "
+
+        # Completing commands
+        exec_list = self.get_posix_executables()
+        commands = set(self.BUILTIN)
+        commands.update(exec_list)
+
+        options = sorted(
+            command for command in commands
+            if command.startswith(text)
+        )
+
+        if state >= len(options):
             return None
+
+        return options[state] + " "
 
     def run_program(
         self,
