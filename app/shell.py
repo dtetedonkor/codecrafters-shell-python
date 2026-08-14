@@ -83,11 +83,11 @@ class Shell:
             if state >= len(options):
                 return None
 
-            entry = options[state]
-            if os.path.isdir(entry):
-                return entry + "/"
+            options[state]
+            if os.path.isdir(options[state]):
+                return options[state] + "/"
 
-            return entry + " "
+            return options[state] + " "
 
         # Completing commands
         exec_list = self.get_posix_executables()
