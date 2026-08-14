@@ -46,12 +46,13 @@ class Shell:
     def completer(self, text: str, state: int):
         
         # Check if the character right before the cursor is a space
-        line_buffer = readline.get_line_buffer()
+        line_buffer : str = readline.get_line_buffer() 
         if '/' in line_buffer:
-            last_str = line_buffer.rsplit(" ",1)[-1]
-            parts = last_str.rsplit('/',1)
+            last_str : list[str] = line_buffer.rsplit(" ",1)[-1]
+            parts : list[str]= last_str.rsplit('/',1)
             
             dirs = self.get_dir(parts[0])
+            dirs.update(self.get_dir_files(parts[0]))
             
             options = sorted (
                             c for c in dirs
@@ -59,7 +60,10 @@ class Shell:
                             )
                                 
             if state < len(options):
-                return options[state] + "/"
+                if os.path.isdir(parts[0] + options[state]):
+                    return options[state] + "/"
+                else:
+                    return options[state] + " "
             return None
         
         elif '/' not in line_buffer:
