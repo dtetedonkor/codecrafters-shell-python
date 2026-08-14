@@ -50,8 +50,9 @@ class Shell:
         if '/' in line_buffer:
             last_str = line_buffer.rsplit(" ",1)[-1]
             parts = last_str.rsplit('/',1)
-            print(f'parts: {parts}')
+            
             dirs = self.get_dir(parts[0])
+            print(f'dirs: {dirs}')
             options = sorted (
                             c for c in dirs
                             if c.startswith(parts[1])
