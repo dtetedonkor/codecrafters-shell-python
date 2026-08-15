@@ -13,8 +13,9 @@ class Shell:
             "pwd": self._pwd,
             "type": self._type,
             "exit": self._exit,
+            "complete": self._complete,
         }
-        self.BUILTIN = ["cd","pwd","type","exit","echo"]
+        self.BUILTIN = ["cd","pwd","type","exit","echo","complete"]
         
 
     def get_posix_executables(self) -> set[str]:
@@ -263,6 +264,14 @@ class Shell:
     ) -> None:
         stdout.write(os.getcwd() + "\n")
 
+    def _complete(
+            self,
+            args,
+            stdout=sys.stdout,
+            stderr=sys.stderr
+            ):
+
+        pass
     def _type(
         self,
         args,
