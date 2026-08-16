@@ -282,8 +282,8 @@ class Shell:
                 else:
                     print(f"complete: {command}: no completion specification")
             elif flag == "-C":
-                path = args[2]
-                command = args[3]
+                path = args[1]
+                command = args[2]
                 self.completions[command] = path
             
     def _type(
