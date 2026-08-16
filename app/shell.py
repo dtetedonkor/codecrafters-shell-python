@@ -274,6 +274,8 @@ class Shell:
             command = args[1]
             if args[0] == "-p":
                 print(f"complete: {command}: no completion specification")
+            elif args[0] == "-C":
+                print(f"Reached")
     def _type(
         self,
         args,
