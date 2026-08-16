@@ -16,7 +16,7 @@ class Shell:
             "complete": self._complete,
         }
         self.BUILTIN = ["cd","pwd","type","exit","echo","complete"]
-        
+        self.completions = {}
 
     def get_posix_executables(self) -> set[str]:
         path_dirs = os.get_exec_path()
@@ -271,11 +271,21 @@ class Shell:
             stdout=sys.stdout,
             stderr=sys.stderr
             ):
-            command = args[1]
-            if args[0] == "-p":
-                print(f"complete: {command}: no completion specification")
-            elif args[0] == "-C":
-                print(f"Reached")
+            command = ""
+            path = ""
+            flag = args[0]
+            if flag == "-p":
+                
+                command = args[1]
+                if command in self.completions:
+                    print(f"complete -C '{self.completions[command]}' {command}")
+                else:
+                    print(f"complete: {command}: no completion specification")
+            elif flag == "-C":
+                path = args[2]
+                command = args[3]
+                self.completions[command] = path
+            
     def _type(
         self,
         args,
