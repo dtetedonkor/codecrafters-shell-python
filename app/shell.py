@@ -37,6 +37,7 @@ class Shell:
                 continue
 
         return sorted(executable_files)
+    
     def get_dir_files(self,path='.') ->set[str]:
        """Return a set of filenames for all files (not directories) in the given path."""
        return {f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))}
@@ -270,8 +271,8 @@ class Shell:
             stdout=sys.stdout,
             stderr=sys.stderr
             ):
-
-        pass
+            if args[0] == "-p":
+                print(f"reached")
     def _type(
         self,
         args,
