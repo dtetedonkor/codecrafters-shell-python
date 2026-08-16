@@ -271,8 +271,9 @@ class Shell:
             stdout=sys.stdout,
             stderr=sys.stderr
             ):
+            command = args[1]
             if args[0] == "-p":
-                print(f"reached")
+                print(f"complete: {command}: no completion specification")
     def _type(
         self,
         args,
