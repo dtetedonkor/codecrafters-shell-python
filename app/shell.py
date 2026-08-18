@@ -51,11 +51,12 @@ class Shell:
         last_str = line_buffer.rsplit(" ", 1)[-1]
 
         if command in self.completions:
-                stdout = subprocess.run(
+                output = subprocess.run(
                             capture_output=True,
                             text=True,           
                         )
-                clean_out = stdout.rstrip()
+                print(output)
+                clean_out = output.rstrip()
                 clean_out = clean_out + " "
                 readline.insert_text(clean_out)
                 return None
