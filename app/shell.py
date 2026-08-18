@@ -49,6 +49,8 @@ class Shell:
         line_buffer = readline.get_line_buffer()
         last_str = line_buffer.rsplit(" ", 1)[-1]
 
+        print(line_buffer)
+
         # Completing a path
         if "/" in last_str:
             path, prefix = last_str.rsplit("/", 1)
