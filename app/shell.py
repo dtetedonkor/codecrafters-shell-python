@@ -47,9 +47,19 @@ class Shell:
     
     def completer(self, text: str, state: int):
         line_buffer = readline.get_line_buffer()
-        first_str = line_buffer.split()[0]
+        command = line_buffer.split()[0]
         last_str = line_buffer.rsplit(" ", 1)[-1]
-        print(first_str)
+
+        if command in self.completions:
+                stdout = subprocess.run(
+                            capture_output=True,
+                            text=True,           
+                        )
+                clean_out = stdout.rstrip()
+                clean_out = clean_out + " "
+                readline.insert_text(clean_out)
+                return None
+            
         
 
         # Completing a path
