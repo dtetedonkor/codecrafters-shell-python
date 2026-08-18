@@ -52,10 +52,10 @@ class Shell:
 
         if command in self.completions:
                 output = subprocess.run(
+                            self.completions[command],
                             capture_output=True,
                             text=True,           
                         )
-                print(output)
                 clean_out = output.rstrip()
                 clean_out = clean_out + " "
                 readline.insert_text(clean_out)
