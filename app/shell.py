@@ -56,6 +56,7 @@ class Shell:
                             capture_output=True,
                             text=True,           
                         )
+                print(output)
                 clean_out = output.rstrip()
                 clean_out = clean_out + " "
                 readline.insert_text(clean_out)
