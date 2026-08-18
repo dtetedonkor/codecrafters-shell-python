@@ -47,9 +47,10 @@ class Shell:
     
     def completer(self, text: str, state: int):
         line_buffer = readline.get_line_buffer()
+        first_str = line_buffer.split()[0]
         last_str = line_buffer.rsplit(" ", 1)[-1]
-
-        print(line_buffer)
+        print(first_str)
+        
 
         # Completing a path
         if "/" in last_str:
