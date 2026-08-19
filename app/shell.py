@@ -49,6 +49,7 @@ class Shell:
         line_buffer = readline.get_line_buffer()
         command = line_buffer.split()[0]
         last_str = line_buffer.rsplit(" ", 1)[-1]
+        
 
         if command in self.completions:
                 process_obj = subprocess.run(
@@ -57,9 +58,22 @@ class Shell:
                             text=True           
                         )
                 completion = process_obj.stdout
-                clean_comp = completion.rstrip()
-                clean_comp = clean_comp + " "
-                readline.insert_text(clean_comp)
+                candidate = set(completion.splitlines())
+
+                options = sorted (
+                    entry for entry in candidate 
+                    if entry.startswith(last_str)
+                )
+                if state >= len(options):
+                    return None
+
+
+                if completion == "":
+                    print('\x07')
+                   
+                else:
+                    clean_comp = options[state].rstrip()
+                    return clean_comp + " "
                 return None
             
         
