@@ -51,12 +51,15 @@ class Shell:
         last_str = line_buffer.rsplit(" ", 1)[-1]
         argv = self.completions[command]
         argv[1] = command
+        print(f"argv[0]: {argv[0]}")
+        print(f"argv[1]: {argv[1]}")
         argv[2] = last_str
+        print(f"argv[2]: {argv[2]}")
         if line_buffer.split() > 2:
             argv[3] = line_buffer.split()[-2]
         else:
             argv[3] = ""
-
+        print(f"argv[3]: {argv[3]}")
         
 
         if command in self.completions:
