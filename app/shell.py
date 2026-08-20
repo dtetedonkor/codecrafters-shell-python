@@ -65,7 +65,7 @@ class Shell:
 
         if command in self.completions:
                 process_obj = subprocess.run(
-                            self.completions[command],
+                            argv,
                             capture_output=True,
                             text=True           
                         )
