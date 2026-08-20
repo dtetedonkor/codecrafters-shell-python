@@ -44,23 +44,30 @@ class Shell:
 
     def get_dir(self,path='.'):
         return {f for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))}
-    
+
     def completer(self, text: str, state: int):
         line_buffer = readline.get_line_buffer()
         last_str = line_buffer.rsplit(" ", 1)[-1]
-
         parts = line_buffer.split()
 
+        # Nothing has been typed yet
         if not parts:
             return None
 
         command = parts[0]
 
-        # Custom -C completion
+        # -----------------------------------
+        # Custom completion: complete -C
+        # -----------------------------------
         if command in self.completions:
-
             script = self.completions[command]
 
+            # Example:
+            # git remote <TAB>
+            #
+            # parts = ["git", "remote"]
+            # current_word = ""
+            # previous_word = "remote"
             if line_buffer.endswith(" "):
                 current_word = ""
 
@@ -69,6 +76,12 @@ class Shell:
                 else:
                     previous_word = ""
 
+            # Example:
+            # git remote set<TAB>
+            #
+            # parts = ["git", "remote", "set"]
+            # current_word = "set"
+            # previous_word = "remote"
             else:
                 current_word = parts[-1]
 
@@ -90,16 +103,94 @@ class Shell:
 
             completion = process_obj.stdout
 
+            candidates = set(completion.splitlines())
+
             options = sorted(
                 entry
-                for entry in set(completion.splitlines())
+                for entry in candidates
                 if entry.startswith(current_word)
+            )
+
+            # No completion candidates
+            if not options:
+                if state == 0:
+                    print("\x07", end="", flush=True)
+
+                return None
+
+            if state >= len(options):
+                return None
+
+            clean_comp = options[state].rstrip()
+            return clean_comp + " "
+
+        # -----------------------------------
+        # Completing a path
+        # -----------------------------------
+        if "/" in last_str:
+            path, prefix = last_str.rsplit("/", 1)
+
+            entries = self.get_dir(path)
+            entries.update(self.get_dir_files(path))
+
+            options = sorted(
+                entry
+                for entry in entries
+                if entry.startswith(prefix)
             )
 
             if state >= len(options):
                 return None
 
-            return options[state] + " "
+            entry = options[state]
+            full_path = os.path.join(path, entry)
+
+            if os.path.isdir(full_path):
+                return entry + "/"
+
+            return entry + " "
+
+        # -----------------------------------
+        # Completing a filename/directory
+        # -----------------------------------
+        if " " in line_buffer:
+            entries = self.get_dir()
+            entries.update(self.get_dir_files())
+
+            options = sorted(
+                entry
+                for entry in entries
+                if entry.startswith(last_str)
+            )
+
+            if state >= len(options):
+                return None
+
+            entry = options[state]
+
+            if os.path.isdir(entry):
+                return entry + "/"
+
+            return entry + " "
+
+        # -----------------------------------
+        # Completing commands
+        # -----------------------------------
+        exec_list = self.get_posix_executables()
+
+        commands = set(self.BUILTIN)
+        commands.update(exec_list)
+
+        options = sorted(
+            command
+            for command in commands
+            if command.startswith(text)
+        )
+
+        if state >= len(options):
+            return None
+
+        return options[state] + " "
     
     def run_program(
         self,
