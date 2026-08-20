@@ -47,117 +47,60 @@ class Shell:
     
     def completer(self, text: str, state: int):
         line_buffer = readline.get_line_buffer()
-        last_str = readline.rsplit("",1)[-1]
+        last_str = line_buffer.rsplit(" ", 1)[-1]
+
         parts = line_buffer.split()
-        command = parts[0]
 
         if not parts:
             return None
-        
-        script = self.completions[command]
-        
 
+        command = parts[0]
+
+        # Custom -C completion
         if command in self.completions:
-                current_word = parts[-1]
-                parts = line_buffer.split()
 
-                if line_buffer.endswith(" "):
-                    current_word = ""
+            script = self.completions[command]
+
+            if line_buffer.endswith(" "):
+                current_word = ""
+
+                if len(parts) >= 2:
                     previous_word = parts[-1]
                 else:
-                    current_word = parts[-1]
+                    previous_word = ""
 
-                    if len(parts) >= 2:
-                        previous_word = parts[-2]
-                    else:
-                        previous_word = ""
-                        
-                process_obj = subprocess.run(
-                            [script,
-                             command,
-                             current_word,
-                             previous_word],
-                            capture_output=True,
-                            text=True           
-                        )
-                completion = process_obj.stdout
-                candidate = set(completion.splitlines())
+            else:
+                current_word = parts[-1]
 
-                options = sorted (
-                    entry for entry in candidate 
-                    if entry.startswith(current_word)
-                )
-                if state >= len(options):
-                    return None
-
-
-                if completion == "":
-                    print('\x07')
-                   
+                if len(parts) >= 2:
+                    previous_word = parts[-2]
                 else:
-                    clean_comp = options[state].rstrip()
-                    return clean_comp + " "
-                return None
-            
-        
+                    previous_word = ""
 
-        # Completing a path
-        if "/" in last_str:
-            path, prefix = last_str.rsplit("/", 1)
+            process_obj = subprocess.run(
+                [
+                    script,
+                    command,
+                    current_word,
+                    previous_word
+                ],
+                capture_output=True,
+                text=True
+            )
 
-            entries = self.get_dir(path)
-            entries.update(self.get_dir_files(path))
+            completion = process_obj.stdout
 
             options = sorted(
-                entry for entry in entries
-                if entry.startswith(prefix)
+                entry
+                for entry in set(completion.splitlines())
+                if entry.startswith(current_word)
             )
 
             if state >= len(options):
                 return None
-
-            entry = options[state]
-            full_path = os.path.join(path, entry)
-
-            if os.path.isdir(full_path):
-                return entry + "/"
-
-            return entry + " "
-
-        # Completing a filename/directory in the current directory
-        if " " in line_buffer:
-            entries = self.get_dir()
-            entries.update(self.get_dir_files())
-
-            options = sorted(
-                entry for entry in entries
-                if entry.startswith(last_str)
-            )
-
-            if state >= len(options):
-                return None
-
-            options[state]
-            if os.path.isdir(options[state]):
-                return options[state] + "/"
 
             return options[state] + " "
-
-        # Completing commands
-        exec_list = self.get_posix_executables()
-        commands = set(self.BUILTIN)
-        commands.update(exec_list)
-
-        options = sorted(
-            command for command in commands
-            if command.startswith(text)
-        )
-
-        if state >= len(options):
-            return None
-
-        return options[state] + " "
-
+    
     def run_program(
         self,
         command_list: list,
