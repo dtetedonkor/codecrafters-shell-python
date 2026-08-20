@@ -47,16 +47,36 @@ class Shell:
     
     def completer(self, text: str, state: int):
         line_buffer = readline.get_line_buffer()
-        command = line_buffer.split()[0]
-        last_str = line_buffer.rsplit(" ", 1)[-1]
-
+        last_str = readline.rsplit("",1)[-1]
         parts = line_buffer.split()
-        print(parts)
+        command = parts[0]
+
+        if not parts:
+            return None
+        
+        script = self.completions[command]
         
 
         if command in self.completions:
+                current_word = parts[-1]
+                parts = line_buffer.split()
+
+                if line_buffer.endswith(" "):
+                    current_word = ""
+                    previous_word = parts[-1]
+                else:
+                    current_word = parts[-1]
+
+                    if len(parts) >= 2:
+                        previous_word = parts[-2]
+                    else:
+                        previous_word = ""
+                        
                 process_obj = subprocess.run(
-                            self.completions[command],
+                            [script,
+                             command,
+                             current_word,
+                             previous_word],
                             capture_output=True,
                             text=True           
                         )
@@ -65,7 +85,7 @@ class Shell:
 
                 options = sorted (
                     entry for entry in candidate 
-                    if entry.startswith(last_str)
+                    if entry.startswith(current_word)
                 )
                 if state >= len(options):
                     return None
