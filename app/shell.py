@@ -57,9 +57,9 @@ class Shell:
         argv.append(last_str)
         print(f"argv[2]: {argv[2]}")
         if line_buffer.split() > 2:
-            argv[3] = line_buffer.split()[-2]
+            argv.append(line_buffer.split()[-2]) 
         else:
-            argv[3] = ""
+            argv.append("")
         print(f"argv[3]: {argv[3]}")
         
 
