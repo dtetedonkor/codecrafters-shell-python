@@ -49,6 +49,7 @@ class Shell:
         line_buffer = readline.get_line_buffer()
         command = line_buffer.split()[0]
         last_str = line_buffer.rsplit(" ", 1)[-1]
+        print("Reached")
         argv = self.completions[command]
         argv[1] = command
         print(f"argv[0]: {argv[0]}")
@@ -325,7 +326,7 @@ class Shell:
                 argv.append(args[1])
                 command = args[2]
                 self.completions[command] = argv
-                print(self.completions[command])
+                
             
     def _type(
         self,
