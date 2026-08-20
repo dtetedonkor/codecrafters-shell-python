@@ -267,7 +267,7 @@ class Shell:
             stderr=sys.stderr
             ):
             command = ""
-            argv = []
+            path = ""
             flag = args[0]
             if flag == "-p":
                 
@@ -277,9 +277,9 @@ class Shell:
                 else:
                     print(f"complete: {command}: no completion specification")
             elif flag == "-C":
-                argv.append(args[1])
+                path = args[1]
                 command = args[2]
-                self.completions[command] = argv
+                self.completions[command] = path
                 
             
     def _type(
