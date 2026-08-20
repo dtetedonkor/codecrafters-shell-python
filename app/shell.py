@@ -49,21 +49,14 @@ class Shell:
         line_buffer = readline.get_line_buffer()
         command = line_buffer.split()[0]
         last_str = line_buffer.rsplit(" ", 1)[-1]
-        argv = self.completions[command]
-        argv.append(command)
-        
-        argv.append(last_str)
-        
-        if line_buffer.split() > 2:
-            argv.append(line_buffer.split()[-2]) 
-        else:
-            argv.append("")
-        
+
+        parts = line_buffer.split()
+        print(parts)
         
 
         if command in self.completions:
                 process_obj = subprocess.run(
-                            argv,
+                            self.completions[command],
                             capture_output=True,
                             text=True           
                         )
