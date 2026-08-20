@@ -323,9 +323,9 @@ class Shell:
                     print(f"complete: {command}: no completion specification")
             elif flag == "-C":
                 argv.append(args[1])
-                print(argv)
                 command = args[2]
                 self.completions[command] = argv
+                print(self.completions[command])
             
     def _type(
         self,
