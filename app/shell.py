@@ -3,6 +3,7 @@ import readline
 import shutil
 import subprocess
 import sys
+from contextlib import ExitStack
 from pathlib import Path
 
 
@@ -51,7 +52,7 @@ class Shell:
         last_str = COMP_LINE.rsplit(" ", 1)[-1]
         parts = COMP_LINE.split()
 
-        COMP_POINT = len(COMP_LINE.encode('utf-8'))
+        COMP_POINT = len(COMP_LINE.encode("utf-8"))
         custom_env = os.environ.copy()
 
         # Add or overwrite specific variables
@@ -102,7 +103,7 @@ class Shell:
                 env=custom_env,
                 capture_output=True,
                 text=True,
-                check=True
+                check=True,
             )
 
             completion = process_obj.stdout
@@ -182,6 +183,8 @@ class Shell:
 
         return options[state] + " "
 
+    from contextlib import ExitStack
+
     def run_program(
         self,
         command_list: list,
@@ -192,9 +195,9 @@ class Shell:
     ) -> None:
 
         program = shutil.which(command_list[0])
-        os.get_exec_path()
+
+        # Program doesn't exist — do nothing
         if not program:
-            print(f"{command_list[0]}: command not found")
             return
 
         if stdout is None:
@@ -203,48 +206,44 @@ class Shell:
         if stderr is None:
             stderr = sys.stderr
 
-        stdout_file = None
-        stderr_file = None
-
         try:
-            # stdout
-            if isinstance(stdout, str):
-                mode = "a" if stdout_append else "w"
-                stdout_file = open(stdout, mode)
-                stdout_dest = stdout_file
-            else:
-                stdout_dest = stdout
+            with ExitStack() as stack:
+                # stdout redirection
+                if isinstance(stdout, str):
+                    mode = "a" if stdout_append else "w"
 
-            # stderr
-            if isinstance(stderr, str):
-                mode = "a" if stderr_append else "w"
-                stderr_file = open(stderr, mode)
-                stderr_dest = stderr_file
-            else:
-                stderr_dest = stderr
+                    stdout_dest = stack.enter_context(open(stdout, mode))
+                else:
+                    stdout_dest = stdout
 
-            subprocess.run(
-                command_list,
-                text=True,
-                stdout=stdout_dest,
-                stderr=stderr_dest,
-                check=True
-            )
-        except subprocess.CalledProcessError as e:
-            print(f"failed {e}")
-        finally:
-            if stdout_file:
-                stdout_file.close()
+                # stderr redirection
+                if isinstance(stderr, str):
+                    mode = "a" if stderr_append else "w"
 
-            if stderr_file:
-                stderr_file.close()
+                    stderr_dest = stack.enter_context(open(stderr, mode))
+                else:
+                    stderr_dest = stderr
+
+                subprocess.run(
+                    command_list, text=True, stdout=stdout_dest, stderr=stderr_dest,check=True
+                )
+
+        except FileNotFoundError:
+            # Executable couldn't be found.
+            # Return to the shell loop without printing anything.
+            return
+
+        except subprocess.CalledProcessError:
+            return
+
+   
 
     def execute(self, parsed: dict) -> None:
-        """execute is the central funcntion that calls bulitins or
-        executable functions to print to shell output.
-        It doesnt perform any actions just acts as forwarder.
-         It also manages redirects to standard stdout or stderr for
-          both builtin commands and executables"""
+        """Execute builtin commands or external programs.
+
+        Handles stdout/stderr redirection for both builtin commands
+        and external programs.
+        """
 
         command_list = parsed["command"]
         stdout = parsed["stdout"]
@@ -261,37 +260,36 @@ class Shell:
         builtin = self.builtin.get(command)
 
         if builtin:
-            stdout_file = None
-            stderr_file = None
+            with ExitStack() as stack:
 
-            try:
                 # stdout
                 if stdout:
                     mode = "a" if stdout_append else "w"
-                    stdout_file = open(stdout, mode)
-                    stdout_dest = stdout_file
+                    stdout_dest = stack.enter_context(
+                        open(stdout, mode)
+                    )
                 else:
                     stdout_dest = sys.stdout
 
                 # stderr
                 if stderr:
                     mode = "a" if stderr_append else "w"
-                    stderr_file = open(stderr, mode)
-                    stderr_dest = stderr_file
+                    stderr_dest = stack.enter_context(
+                        open(stderr, mode)
+                    )
                 else:
                     stderr_dest = sys.stderr
 
                 builtin(args, stdout_dest, stderr_dest)
 
-            finally:
-                if stdout_file:
-                    stdout_file.close()
-
-                if stderr_file:
-                    stderr_file.close()
-
         else:
-            self.run_program(command_list, stdout, stderr, stdout_append, stderr_append)
+            self.run_program(
+                command_list,
+                stdout,
+                stderr,
+                stdout_append,
+                stderr_append
+            )
 
     def _exit(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
         sys.exit(0)
