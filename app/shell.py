@@ -56,7 +56,7 @@ class Shell:
 
         # Add or overwrite specific variables
         custom_env["COMP_LINE"] = COMP_LINE
-        custom_env["COMP_POINT"] = COMP_POINT
+        custom_env["COMP_POINT"] = str(COMP_POINT)
         # Nothing has been typed yet
         if not parts:
             return None
