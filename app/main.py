@@ -1,10 +1,7 @@
-from .shell import Shell
-from .parser import Parser
 import readline
 
-
-    
-
+from .parser import Parser
+from .shell import Shell
 
 
 def main():
@@ -14,7 +11,7 @@ def main():
     current_delims = readline.get_completer_delims()
 
     # Remove the hyphen from the delimiter string
-    new_delims = current_delims.replace('-', '')
+    new_delims = current_delims.replace("-", "")
     readline.set_completer_delims(new_delims)
     readline.set_completer(shell.completer)
     readline.parse_and_bind("Tab: Complete")

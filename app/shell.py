@@ -1,9 +1,10 @@
-import sys
+import os
+import readline
 import shutil
 import subprocess
-import os
+import sys
 from pathlib import Path
-import readline
+
 
 class Shell:
     def __init__(self):
@@ -15,7 +16,7 @@ class Shell:
             "exit": self._exit,
             "complete": self._complete,
         }
-        self.BUILTIN = ["cd","pwd","type","exit","echo","complete"]
+        self.BUILTIN = ["cd", "pwd", "type", "exit", "echo", "complete"]
         self.completions = {}
 
     def get_posix_executables(self) -> set[str]:
@@ -37,18 +38,20 @@ class Shell:
                 continue
 
         return sorted(executable_files)
-    
-    def get_dir_files(self,path='.') ->set[str]:
-       """Return a set of filenames for all files (not directories) in the given path."""
-       return {f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))}
 
-    def get_dir(self,path='.'):
+    def get_dir_files(self, path=".") -> set[str]:
+        """Return a set of filenames for all files (not directories) in the given path."""
+        return {f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))}
+
+    def get_dir(self, path="."):
         return {f for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))}
 
     def completer(self, text: str, state: int):
-        line_buffer = readline.get_line_buffer()
-        last_str = line_buffer.rsplit(" ", 1)[-1]
-        parts = line_buffer.split()
+        COMP_LINE = readline.get_line_buffer()
+        last_str = COMP_LINE.rsplit(" ", 1)[-1]
+        parts = COMP_LINE.split()
+
+        COMP_POINT = len(COMP_LINE.encode('utf-8'))
 
         # Nothing has been typed yet
         if not parts:
@@ -68,7 +71,7 @@ class Shell:
             # parts = ["git", "remote"]
             # current_word = ""
             # previous_word = "remote"
-            if line_buffer.endswith(" "):
+            if COMP_LINE.endswith(" "):
                 current_word = ""
 
                 if len(parts) >= 2:
@@ -91,14 +94,10 @@ class Shell:
                     previous_word = ""
 
             process_obj = subprocess.run(
-                [
-                    script,
-                    command,
-                    current_word,
-                    previous_word
-                ],
+                [script, command, current_word, previous_word,COMP_LINE,COMP_POINT],
                 capture_output=True,
-                text=True
+                text=True,
+                check=True
             )
 
             completion = process_obj.stdout
@@ -106,9 +105,7 @@ class Shell:
             candidates = set(completion.splitlines())
 
             options = sorted(
-                entry
-                for entry in candidates
-                if entry.startswith(current_word)
+                entry for entry in candidates if entry.startswith(current_word)
             )
 
             # No completion candidates
@@ -133,11 +130,7 @@ class Shell:
             entries = self.get_dir(path)
             entries.update(self.get_dir_files(path))
 
-            options = sorted(
-                entry
-                for entry in entries
-                if entry.startswith(prefix)
-            )
+            options = sorted(entry for entry in entries if entry.startswith(prefix))
 
             if state >= len(options):
                 return None
@@ -153,15 +146,11 @@ class Shell:
         # -----------------------------------
         # Completing a filename/directory
         # -----------------------------------
-        if " " in line_buffer:
+        if " " in COMP_LINE:
             entries = self.get_dir()
             entries.update(self.get_dir_files())
 
-            options = sorted(
-                entry
-                for entry in entries
-                if entry.startswith(last_str)
-            )
+            options = sorted(entry for entry in entries if entry.startswith(last_str))
 
             if state >= len(options):
                 return None
@@ -181,24 +170,20 @@ class Shell:
         commands = set(self.BUILTIN)
         commands.update(exec_list)
 
-        options = sorted(
-            command
-            for command in commands
-            if command.startswith(text)
-        )
+        options = sorted(command for command in commands if command.startswith(text))
 
         if state >= len(options):
             return None
 
         return options[state] + " "
-    
+
     def run_program(
         self,
         command_list: list,
         stdout=None,
         stderr=None,
         stdout_append=False,
-        stderr_append=False
+        stderr_append=False,
     ) -> None:
 
         program = shutil.which(command_list[0])
@@ -238,6 +223,7 @@ class Shell:
                 text=True,
                 stdout=stdout_dest,
                 stderr=stderr_dest,
+                check=True
             )
 
         finally:
@@ -248,12 +234,12 @@ class Shell:
                 stderr_file.close()
 
     def execute(self, parsed: dict) -> None:
-        """execute is the central funcntion that calls bulitins or 
-         executable functions to print to shell output.
-         It doesnt perform any actions just acts as forwarder.
-          It also manages redirects to standard stdout or stderr for
-           both builtin commands and executables """
-        
+        """execute is the central funcntion that calls bulitins or
+        executable functions to print to shell output.
+        It doesnt perform any actions just acts as forwarder.
+         It also manages redirects to standard stdout or stderr for
+          both builtin commands and executables"""
+
         command_list = parsed["command"]
         stdout = parsed["stdout"]
         stderr = parsed["stderr"]
@@ -299,28 +285,12 @@ class Shell:
                     stderr_file.close()
 
         else:
-            self.run_program(
-                command_list,
-                stdout,
-                stderr,
-                stdout_append,
-                stderr_append
-            )
+            self.run_program(command_list, stdout, stderr, stdout_append, stderr_append)
 
-    def _exit(
-        self,
-        args,
-        stdout=sys.stdout,
-        stderr=sys.stderr
-    ) -> None:
+    def _exit(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
         sys.exit(0)
 
-    def _cd(
-        self,
-        args,
-        stdout=sys.stdout,
-        stderr=sys.stderr
-    ) -> None:
+    def _cd(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
 
         if not args:
             path = os.path.expanduser("~")
@@ -331,54 +301,30 @@ class Shell:
             os.chdir(path)
 
         except OSError:
-            stderr.write(
-                f"cd: {path}: No such file or directory\n"
-            )
+            stderr.write(f"cd: {path}: No such file or directory\n")
 
-    def _echo(
-        self,
-        args,
-        stdout=sys.stdout,
-        stderr=sys.stderr
-    ):
+    def _echo(self, args, stdout=sys.stdout, stderr=sys.stderr):
         stdout.write(" ".join(args) + "\n")
 
-    def _pwd(
-        self,
-        args,
-        stdout=sys.stdout,
-        stderr=sys.stderr
-    ) -> None:
+    def _pwd(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
         stdout.write(os.getcwd() + "\n")
 
-    def _complete(
-            self,
-            args,
-            stdout=sys.stdout,
-            stderr=sys.stderr
-            ):
-            command = ""
-            path = ""
-            flag = args[0]
-            if flag == "-p":
-                
-                command = args[1]
-                if command in self.completions:
-                    print(f"complete -C '{self.completions[command]}' {command}")
-                else:
-                    print(f"complete: {command}: no completion specification")
-            elif flag == "-C":
-                path = args[1]
-                command = args[2]
-                self.completions[command] = path
-                
-            
-    def _type(
-        self,
-        args,
-        stdout=sys.stdout,
-        stderr=sys.stderr
-    ) -> None:
+    def _complete(self, args, stdout=sys.stdout, stderr=sys.stderr):
+        command = ""
+        path = ""
+        flag = args[0]
+        if flag == "-p":
+            command = args[1]
+            if command in self.completions:
+                print(f"complete -C '{self.completions[command]}' {command}")
+            else:
+                print(f"complete: {command}: no completion specification")
+        elif flag == "-C":
+            path = args[1]
+            command = args[2]
+            self.completions[command] = path
+
+    def _type(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
 
         if not args:
             return
