@@ -94,7 +94,8 @@ class Shell:
                     previous_word = ""
 
             process_obj = subprocess.run(
-                [script, command, current_word, previous_word,COMP_LINE,COMP_POINT],
+                [script, command, current_word, previous_word],
+                env=[COMP_LINE,COMP_POINT],
                 capture_output=True,
                 text=True,
                 check=True
