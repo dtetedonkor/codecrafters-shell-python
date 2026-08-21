@@ -195,9 +195,12 @@ class Shell:
     ) -> None:
 
         program = shutil.which(command_list[0])
+        if not command_list:
+            return
 
-        # Program doesn't exist — do nothing
+        # Program doesn't exist print it doesnt exit
         if not program:
+            print(f"{command_list[0]}: command not found")
             return
 
         if stdout is None:
