@@ -230,7 +230,8 @@ class Shell:
                 stderr=stderr_dest,
                 check=True
             )
-
+        except subprocess.CalledProcessError as e:
+            print(f"failed {e}")
         finally:
             if stdout_file:
                 stdout_file.close()
