@@ -52,8 +52,11 @@ class Shell:
         parts = COMP_LINE.split()
 
         COMP_POINT = len(COMP_LINE.encode('utf-8'))
-        print(COMP_LINE)
-        print(COMP_POINT)
+        custom_env = os.environ.copy()
+
+        # Add or overwrite specific variables
+        custom_env["COMP_LINE"] = COMP_LINE
+        custom_env["COMP_POINT"] = COMP_POINT
         # Nothing has been typed yet
         if not parts:
             return None
@@ -96,7 +99,7 @@ class Shell:
 
             process_obj = subprocess.run(
                 [script, command, current_word, previous_word],
-                env=[COMP_LINE,COMP_POINT],
+                env=custom_env,
                 capture_output=True,
                 text=True,
                 check=True
