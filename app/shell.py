@@ -52,7 +52,8 @@ class Shell:
         parts = COMP_LINE.split()
 
         COMP_POINT = len(COMP_LINE.encode('utf-8'))
-
+        print(COMP_LINE)
+        print(COMP_POINT)
         # Nothing has been typed yet
         if not parts:
             return None
