@@ -176,7 +176,7 @@ class Shell:
         commands = set(self.BUILTIN)
         commands.update(exec_list)
 
-        options = sorted(command for command in commands if command.startswith(text))
+        options = [command for command in commands if command.startswith(text)]
 
         if state >= len(options):
             return None
