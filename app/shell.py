@@ -17,7 +17,7 @@ class Shell:
             "exit": self._exit,
             "complete": self._complete,
         }
-      
+        self.completions{}
 
     def run_program(
         self,
