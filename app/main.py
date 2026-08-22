@@ -1,8 +1,8 @@
 import readline
 
-from parser import Parser
-from shell import Shell
-from completer import Completer
+from .parser import Parser
+from .shell import Shell
+from .completer import Completer
 
 def main():
     parser = Parser()
