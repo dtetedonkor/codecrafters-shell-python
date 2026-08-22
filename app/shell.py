@@ -183,7 +183,6 @@ class Shell:
 
         return options[state] + " "
 
-    from contextlib import ExitStack
 
     def run_program(
         self,
@@ -330,6 +329,9 @@ class Shell:
             path = args[1]
             command = args[2]
             self.completions[command] = path
+        elif flag == "-r":
+             command = args[2]
+             self.completions.pop(command,None)
 
     def _type(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
 
