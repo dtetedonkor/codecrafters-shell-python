@@ -6,8 +6,8 @@ from .completer import Completer
 
 def main():
     parser = Parser()
-    shell = Shell()
     completer = Completer()
+    shell = Shell(completer)
     # Fetch current word delimiters
     current_delims = readline.get_completer_delims()
 

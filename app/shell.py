@@ -8,7 +8,7 @@ from contextlib import ExitStack
 
 
 class Shell:
-    def __init__(self):
+    def __init__(self, completer=None):
         self.builtin = {
             "cd": self._cd,
             "echo": self._echo,
@@ -17,7 +17,9 @@ class Shell:
             "exit": self._exit,
             "complete": self._complete,
         }
-        self.completions = {}
+        # Share the same dict readline's Completer reads from, so `complete -C`
+        # registrations made here are actually visible during tab-completion.
+        self.completions = completer.completions if completer is not None else {}
 
     def run_program(
         self,
