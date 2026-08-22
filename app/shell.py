@@ -330,7 +330,7 @@ class Shell:
             command = args[2]
             self.completions[command] = path
         elif flag == "-r":
-             command = args[2]
+             command = args[1]
              self.completions.pop(command,None)
 
     def _type(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
