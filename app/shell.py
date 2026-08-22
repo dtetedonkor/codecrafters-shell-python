@@ -1,10 +1,8 @@
 import os
-import readline
 import shutil
 import subprocess
 import sys
 from contextlib import ExitStack
-
 
 
 class Shell:
@@ -16,6 +14,7 @@ class Shell:
             "type": self._type,
             "exit": self._exit,
             "complete": self._complete,
+            "jobs" : self._jobs,
         }
         # Share the same dict readline's Completer reads from, so `complete -C`
         # registrations made here are actually visible during tab-completion.
@@ -31,6 +30,7 @@ class Shell:
     ) -> None:
 
         program = shutil.which(command_list[0])
+        # if the user just presses enter return nothing
         if not command_list:
             return
 
@@ -39,6 +39,8 @@ class Shell:
             print(f"{command_list[0]}: command not found")
             return
 
+        """user can specify which file they want the stdout or stderr stream
+           to go. If file location is specified default system stdout and stderr"""
         if stdout is None:
             stdout = sys.stdout
 
@@ -187,3 +189,6 @@ class Shell:
                 stdout.write(prog + "\n")
             else:
                 stdout.write(f"{cmd}: not found\n")
+
+    def _jobs(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
+        pass

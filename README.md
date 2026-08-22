@@ -27,6 +27,7 @@ The shell currently supports:
   * `echo`
   * `type`
   * `exit`
+  * `complete`
 * Execution of external programs
 * Command searching through the system `PATH`
 * Single and double quote handling

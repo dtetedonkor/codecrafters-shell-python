@@ -5,7 +5,7 @@ import subprocess
 
 class Completer:
     def __init__(self):
-        self.BUILTIN = ["cd", "pwd", "type", "exit", "echo", "complete"]
+        self.BUILTIN = ["cd", "pwd", "type", "exit", "echo", "complete","jobs"]
         self.completions = {}
 
         # readline calls completer(text, 0), (text, 1), ... for a single TAB
@@ -22,20 +22,69 @@ class Completer:
         """Force a rescan of PATH on the next completion request."""
         self._exec_cache = None
 
+    # Never treat these as runnable commands even if the filesystem reports
+    # them as "executable" (common on WSL /mnt/c PATH dirs that mix real
+    # Windows binaries with .dll, .manifest, .config, etc.).
+    _EXCLUDED_EXTENSIONS = {
+        ".dll", ".manifest", ".config", ".ini", ".log", ".pdb",
+        ".lib", ".a", ".o", ".obj", ".json", ".xml", ".md", ".txt",
+    }
+
+    # Extensions Windows itself treats as directly runnable. Used as the
+    # fallback allow-list for WSL-mounted drives when PATHEXT isn't set.
+    _WINDOWS_EXEC_EXTENSIONS = {".exe", ".bat", ".cmd", ".com", ".ps1", ".msi"}
+
+    @staticmethod
+    def _is_windows_mount(dir_str: str) -> bool:
+        """True for WSL-mounted Windows drives like /mnt/c, /mnt/d, ...
+
+        Files under these paths are served through DrvFs, which doesn't
+        carry real Unix permission bits -- os.access(X_OK) ends up true
+        for nearly everything (.dll, .manifest, plain text files, ...).
+        So for these directories we filter by extension instead of trusting
+        the executable bit.
+        """
+        parts = os.path.normpath(dir_str).split(os.sep)
+        # normpath("/mnt/c/Windows/System32") -> ["", "mnt", "c", "Windows", "System32"]
+        return len(parts) >= 3 and parts[1] == "mnt" and len(parts[2]) == 1
+
     def get_posix_executables(self) -> set[str]:
         if self._exec_cache is not None:
             return self._exec_cache
 
+        # Respect PATHEXT if WSL interop has exported it from Windows;
+        # otherwise fall back to the standard Windows executable extensions.
+        pathext = os.environ.get("PATHEXT")
+        win_allowed_ext = (
+            {ext.lower() for ext in pathext.split(os.pathsep)}
+            if pathext
+            else self._WINDOWS_EXEC_EXTENSIONS
+        )
+
         executables = set()
         for dir_str in os.get_exec_path():
+            is_win_mount = self._is_windows_mount(dir_str)
+
             try:
                 with os.scandir(dir_str) as it:
                     for entry in it:
-                        try:
-                            if entry.is_file() and os.access(entry.path, os.X_OK):
-                                executables.add(entry.name)
-                        except OSError:
+                        ext = os.path.splitext(entry.name)[1].lower()
+
+                        if ext in self._EXCLUDED_EXTENSIONS:
                             continue
+
+                        if is_win_mount:
+                            # DrvFs: trust the extension, not X_OK.
+                            if ext not in win_allowed_ext:
+                                continue
+                        else:
+                            try:
+                                if not (entry.is_file() and os.access(entry.path, os.X_OK)):
+                                    continue
+                            except OSError:
+                                continue
+
+                        executables.add(entry.name)
             except OSError:
                 continue
 
