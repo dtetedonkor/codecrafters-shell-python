@@ -17,12 +17,13 @@ class Parser:
 
         tokens = list(lexer)
 
-        result = {
+        command_state = {
             "command": [],
             "stdout": None,
             "stdout_append": False,
             "stderr": None,
-            "stderr_append": False
+            "stderr_append": False,
+            "job": False,
         }
 
         i = 0
@@ -30,20 +31,23 @@ class Parser:
         while i < len(tokens):
             token = tokens[i]
 
+            
+            
             # stdout: > or >>
             if token == ">>":
                 i += 1
 
                 if i < len(tokens):
-                    result["stdout"] = tokens[i]
-                    result["stdout_append"] = True
-
+                    command_state["stdout"] = tokens[i]
+                    command_state["stdout_append"] = True
+            elif token == "&":
+                            command_state["job"] =  True
             elif token == ">":
                 i += 1
 
                 if i < len(tokens):
-                    result["stdout"] = tokens[i]
-                    result["stdout_append"] = False
+                    command_state["stdout"] = tokens[i]
+                    command_state["stdout_append"] = False
 
             # stderr: 2> or 2>>
             elif token == "2":
@@ -51,22 +55,22 @@ class Parser:
                     i += 2
 
                     if i < len(tokens):
-                        result["stderr"] = tokens[i]
-                        result["stderr_append"] = True
+                        command_state["stderr"] = tokens[i]
+                        command_state["stderr_append"] = True
 
                 elif i + 1 < len(tokens) and tokens[i + 1] == ">":
                     i += 2
 
                     if i < len(tokens):
-                        result["stderr"] = tokens[i]
-                        result["stderr_append"] = False
+                        command_state["stderr"] = tokens[i]
+                        command_state["stderr_append"] = False
 
                 else:
-                    result["command"].append(token)
+                    command_state["command"].append(token)
 
             else:
-                result["command"].append(token)
+                command_state["command"].append(token)
 
             i += 1
 
-        return result
+        return command_state

@@ -6,7 +6,7 @@ from contextlib import ExitStack
 
 
 class Shell:
-    def __init__(self, completer=None):
+    def __init__(self, completer=None, jobs= None):
         self.builtin = {
             "cd": self._cd,
             "echo": self._echo,
@@ -19,65 +19,82 @@ class Shell:
         # Share the same dict readline's Completer reads from, so `complete -C`
         # registrations made here are actually visible during tab-completion.
         self.completions = completer.completions if completer is not None else {}
+        self.jobs = jobs
 
     def run_program(
-        self,
-        command_list: list,
-        stdout=None,
-        stderr=None,
-        stdout_append=False,
-        stderr_append=False,
-    ) -> None:
+            self,
+            command_list: list,
+            stdout=None,
+            stderr=None,
+            stdout_append=False,
+            stderr_append=False,
+            job=False,
+        ) -> None:
 
-        program = shutil.which(command_list[0])
-        # if the user just presses enter return nothing
-        if not command_list:
-            return
+            # User just pressed Enter
+            if not command_list:
+                return
 
-        # Program doesn't exist print it doesnt exit
-        if not program:
-            print(f"{command_list[0]}: command not found")
-            return
+            program = shutil.which(command_list[0])
 
-        """user can specify which file they want the stdout or stderr stream
-           to go. If file location is specified default system stdout and stderr"""
-        if stdout is None:
-            stdout = sys.stdout
+            # Program doesn't exist
+            if not program:
+                print(f"{command_list[0]}: command not found")
+                return
 
-        if stderr is None:
-            stderr = sys.stderr
+            if stdout is None:
+                stdout = sys.stdout
 
-        try:
-            with ExitStack() as stack:
-                # stdout redirection
-                if isinstance(stdout, str):
-                    mode = "a" if stdout_append else "w"
+            if stderr is None:
+                stderr = sys.stderr
 
-                    stdout_dest = stack.enter_context(open(stdout, mode))
-                else:
-                    stdout_dest = stdout
+            try:
+                with ExitStack() as stack:
 
-                # stderr redirection
-                if isinstance(stderr, str):
-                    mode = "a" if stderr_append else "w"
+                    # stdout redirection
+                    if isinstance(stdout, str):
+                        mode = "a" if stdout_append else "w"
 
-                    stderr_dest = stack.enter_context(open(stderr, mode))
-                else:
-                    stderr_dest = stderr
+                        stdout_dest = stack.enter_context(
+                            open(stdout, mode)
+                        )
+                    else:
+                        stdout_dest = stdout
 
-                subprocess.run(
-                    command_list, text=True, stdout=stdout_dest, stderr=stderr_dest,check=True
-                )
+                    # stderr redirection
+                    if isinstance(stderr, str):
+                        mode = "a" if stderr_append else "w"
 
-        except FileNotFoundError:
-            # Executable couldn't be found.
-            # Return to the shell loop without printing anything.
-            return
+                        stderr_dest = stack.enter_context(
+                            open(stderr, mode)
+                        )
+                    else:
+                        stderr_dest = stderr
 
-        except subprocess.CalledProcessError:
-            return
+                    # Background job
+                    if job:
+                        self.jobs.run(
+                            command_list,
+                            stdout_dest,
+                            stderr_dest
+                        )
 
-   
+                    # Foreground job
+                    else:
+                        subprocess.run(
+                            command_list,
+                            text=True,
+                            stdout=stdout_dest,
+                            stderr=stderr_dest,
+                            check=True
+                        )
+
+            except FileNotFoundError:
+                return
+
+            except subprocess.CalledProcessError:
+                return
+    
 
     def execute(self, parsed: dict) -> None:
         """Execute builtin commands or external programs.
@@ -91,9 +108,13 @@ class Shell:
         stderr = parsed["stderr"]
         stdout_append = parsed["stdout_append"]
         stderr_append = parsed["stderr_append"]
+        job = parsed["job"]
 
         if not command_list:
             return
+
+      
+
 
         command = command_list[0]
         args = command_list[1:]
@@ -124,12 +145,14 @@ class Shell:
                 builtin(args, stdout_dest, stderr_dest)
 
         else:
+
             self.run_program(
                 command_list,
                 stdout,
                 stderr,
                 stdout_append,
-                stderr_append
+                stderr_append,
+                job
             )
 
     def _exit(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
