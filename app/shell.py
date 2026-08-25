@@ -214,4 +214,14 @@ class Shell:
                 stdout.write(f"{cmd}: not found\n")
 
     def _jobs(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
-        pass
+        for i in range(len(self.jobs.jobs_list)):
+            proc = self.jobs.jobs_list[i]
+            status = proc.poll()
+            if i == 0 and status is None:
+                sys.stdout.write(f"[{i+1}]+  ")
+                sys.stdout.write(f"Running                 ")
+                print(*proc.args)
+            elif status is None:
+                 sys.stdout.write(f"[{i+1}]  ")
+                 sys.stdout.write(f"Running                 ")
+                 print(*proc.args)
