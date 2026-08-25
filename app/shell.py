@@ -226,8 +226,19 @@ class Shell:
                  sys.stdout.write(f"[{i+1}]-  ")
                  sys.stdout.write(f"Running                 ")
                  print(*proc.args)
-            elif status is None:
-                sys.stdout.write(f"[{i+1}]  ")
-                sys.stdout.write(f"Running                 ")
+            elif status is not None and i == len(jobs_list)-1:
+                sys.stdout.write(f"[{i+1}]+  ")
+                sys.stdout.write(f"Done                 ")
                 print(*proc.args)
+                jobs_list.pop(i)
+            elif status is not None and i == len(jobs_list)-2:
+                            sys.stdout.write(f"[{i+1}]-  ")
+                            sys.stdout.write(f"Done                 ")
+                            print(*proc.args)
+                            jobs_list.pop(i)
+            else:
+                            sys.stdout.write(f"[{i+1}]  ")
+                            sys.stdout.write(f"Running                 ")
+                            print(*proc.args)
+                        
             

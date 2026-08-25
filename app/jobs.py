@@ -4,6 +4,7 @@ import subprocess
 class Jobs:
     def __init__(self):
         self.jobs_list = []
+        
 
     def run(self, command_list, stdout, stderr):
         process = subprocess.Popen(
