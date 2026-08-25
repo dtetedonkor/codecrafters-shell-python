@@ -102,13 +102,13 @@ class Shell:
         Handles stdout/stderr redirection for both builtin commands
         and external programs.
         """
-
-        command_list = parsed["command"]
-        stdout = parsed["stdout"]
-        stderr = parsed["stderr"]
-        stdout_append = parsed["stdout_append"]
-        stderr_append = parsed["stderr_append"]
-        job = parsed["job"]
+        # getting all the state values of the parsed command
+        command_list: list = parsed["command"]
+        stdout = parsed["stdout"] 
+        stderr = parsed["stderr"] 
+        stdout_append : bool = parsed["stdout_append"]
+        stderr_append : bool = parsed["stderr_append"]
+        job : bool = parsed["job"]
 
         if not command_list:
             return
@@ -214,14 +214,20 @@ class Shell:
                 stdout.write(f"{cmd}: not found\n")
 
     def _jobs(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
-        for i in range(len(self.jobs.jobs_list)):
+        jobs_list = self.jobs.jobs_list
+        for i in range(len(jobs_list)):
             proc = self.jobs.jobs_list[i]
             status = proc.poll()
-            if i == 0 and status is None:
+            if i == len(jobs_list)-1 and status is None:
                 sys.stdout.write(f"[{i+1}]+  ")
                 sys.stdout.write(f"Running                 ")
                 print(*proc.args)
-            elif status is None:
-                 sys.stdout.write(f"[{i+1}]  ")
+            elif i == len(jobs_list) -2 and status is None:
+                 sys.stdout.write(f"[{i+1}]-  ")
                  sys.stdout.write(f"Running                 ")
                  print(*proc.args)
+            elif status is None:
+                sys.stdout.write(f"[{i+1}]  ")
+                sys.stdout.write(f"Running                 ")
+                print(*proc.args)
+            
