@@ -213,32 +213,6 @@ class Shell:
             else:
                 stdout.write(f"{cmd}: not found\n")
 
-    def _jobs(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
-        jobs_list = self.jobs.jobs_list
-        for i in range(len(jobs_list)):
-            proc = self.jobs.jobs_list[i]
-            status = proc.poll()
-            if i == len(jobs_list)-1 and status is None:
-                sys.stdout.write(f"[{i+1}]+  ")
-                sys.stdout.write(f"Running                 ")
-                print(*proc.args)
-            elif i == len(jobs_list) -2 and status is None:
-                 sys.stdout.write(f"[{i+1}]-  ")
-                 sys.stdout.write(f"Running                 ")
-                 print(*proc.args)
-            elif status is not None and i == len(jobs_list)-1:
-                sys.stdout.write(f"[{i+1}]+  ")
-                sys.stdout.write(f"Done                 ")
-                print(*proc.args)
-                jobs_list.pop(i)
-            elif status is not None and i == len(jobs_list)-2:
-                            sys.stdout.write(f"[{i+1}]-  ")
-                            sys.stdout.write(f"Done                 ")
-                            print(*proc.args)
-                            jobs_list.pop(i)
-            else:
-                            sys.stdout.write(f"[{i+1}]  ")
-                            sys.stdout.write(f"Running                 ")
-                            print(*proc.args)
-                        
+    def _jobs(self, args, stdout=sys.stdout, stderr=sys.stderr):
+        self.jobs.list_jobs(stdout)           
             
