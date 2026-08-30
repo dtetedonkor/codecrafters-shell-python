@@ -1,5 +1,4 @@
 import readline
-
 from .parser import Parser
 from .shell import Shell
 from .completer import Completer
@@ -19,7 +18,9 @@ def main():
     readline.set_completer_delims(new_delims)
     readline.set_completer(completer.completer)
     readline.parse_and_bind("Tab: Complete")
+    
     while True:
+        
         user_in = input("$ ")
         if not user_in:
             continue
@@ -34,6 +35,8 @@ def main():
             continue
 
         shell.execute(parsed_input)
+        jobs.check_done()
+        
 
 
 if __name__ == "__main__":

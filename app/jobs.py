@@ -1,4 +1,5 @@
 import subprocess
+import sys
 
 
 class Job:
@@ -55,6 +56,10 @@ class Jobs:
         if len(self.jobs_list) >= 2:
             self.jobs_list[-2].marker = "-"
 
+    def reap_job(self,job):
+        if job.is_done() and job.done_reported:
+            self.jobs_list.remove(job)
+
     def reap_reported_jobs(self):
         for i in range(len(self.jobs_list) - 1, -1, -1):
 
@@ -65,17 +70,34 @@ class Jobs:
 
         self.update_markers()
 
+    def report_done(self,job):
+         if job.is_done():
+            job.done_reported = True
+            
+
+    def check_done(self):
+        self.reap_reported_jobs()
+        for job in self.jobs_list:
+            # mark all done jobs done
+            self.report_done(job)
+            
+            if job.is_done() and job.done_reported:
+                self.print_job(job,sys.stdout)
+                self.reap_job(job)
+            
+    def print_job(self,job,location):
+          print(
+                        f"[{job.job_number}]{job.marker}  "
+                        f"{job.status():<24}",
+                        *job.command,
+                        file=location
+                    )
+
     def list_jobs(self, stdout):
         self.reap_reported_jobs()
 
         for job in self.jobs_list:
 
-            print(
-                f"[{job.job_number}]{job.marker}  "
-                f"{job.status():<24}",
-                *job.command,
-                file=stdout
-            )
-
-            if job.is_done():
-                job.done_reported = True
+            self.print_job(job,stdout)
+            self.report_done(job)
+           
