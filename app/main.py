@@ -3,12 +3,14 @@ from .parser import Parser
 from .shell import Shell
 from .completer import Completer
 from .jobs import Jobs
+from .pipe import Pipe
 
 def main():
     parser = Parser()
     completer = Completer()
     jobs = Jobs()
-    shell = Shell(completer,jobs)
+    pipe = Pipe()
+    shell = Shell(completer,jobs,pipe)
     
     # Fetch current word delimiters
     current_delims = readline.get_completer_delims()
