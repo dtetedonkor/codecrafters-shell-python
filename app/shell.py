@@ -6,7 +6,7 @@ from contextlib import ExitStack
 
 
 class Shell:
-    def __init__(self, completer=None, jobs= None):
+    def __init__(self, completer=None, jobs= None, pipe = None):
         self.builtin = {
             "cd": self._cd,
             "echo": self._echo,
@@ -20,6 +20,7 @@ class Shell:
         # registrations made here are actually visible during tab-completion.
         self.completions = completer.completions if completer is not None else {}
         self.jobs = jobs
+        self.pipe = pipe
 
     def run_program(
             self,
@@ -29,6 +30,7 @@ class Shell:
             stdout_append=False,
             stderr_append=False,
             job=False,
+            pipe=False
         ) -> None:
 
             # User just pressed Enter
@@ -71,7 +73,16 @@ class Shell:
                     else:
                         stderr_dest = stderr
 
+                    if pipe:
+                        self.pipe.run(
+                            command_list,
+                            stdout_dest,
+                            stderr_dest
+                        )
+
                     # Background job
+                   
+
                     if job:
                         self.jobs.run(
                             command_list,
@@ -109,6 +120,7 @@ class Shell:
         stdout_append : bool = parsed["stdout_append"]
         stderr_append : bool = parsed["stderr_append"]
         job : bool = parsed["job"]
+        pipe: bool = parsed["pipe"]
 
         if not command_list:
             return
@@ -152,7 +164,8 @@ class Shell:
                 stderr,
                 stdout_append,
                 stderr_append,
-                job
+                job,
+                pipe
             )
 
     def _exit(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
