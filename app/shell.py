@@ -29,8 +29,7 @@ class Shell:
             stderr=None,
             stdout_append=False,
             stderr_append=False,
-            job=False,
-            pipe=False
+            job=False
         ) -> None:
 
             # User just pressed Enter
@@ -73,12 +72,7 @@ class Shell:
                     else:
                         stderr_dest = stderr
 
-                    if pipe:
-                        self.pipe.run(
-                            command_list,
-                            stdout_dest,
-                            stderr_dest
-                        )
+                    
 
                     # Background job
                    
@@ -121,6 +115,19 @@ class Shell:
         stderr_append : bool = parsed["stderr_append"]
         job : bool = parsed["job"]
         pipe: bool = parsed["pipe"]
+        pipe_list: list[list] = parsed["pipe_commands"]
+
+        if pipe:
+                    # handle the pipe
+                    self.pipe.execute(
+                        pipe_list,
+                        stdout,
+                        stderr,
+                        stdout_append,
+                        stderr_append,
+                    )
+                    
+        
 
         if not command_list:
             return
@@ -133,10 +140,12 @@ class Shell:
 
         builtin = self.builtin.get(command)
 
-        if builtin:
+       
+
+        if builtin and not pipe:
             with ExitStack() as stack:
 
-                # stdout
+                #output is stdout
                 if stdout:
                     mode = "a" if stdout_append else "w"
                     stdout_dest = stack.enter_context(
@@ -145,7 +154,7 @@ class Shell:
                 else:
                     stdout_dest = sys.stdout
 
-                # stderr
+                # output is stderr
                 if stderr:
                     mode = "a" if stderr_append else "w"
                     stderr_dest = stack.enter_context(
@@ -153,7 +162,7 @@ class Shell:
                     )
                 else:
                     stderr_dest = sys.stderr
-
+                # run the builtin with dest location
                 builtin(args, stdout_dest, stderr_dest)
 
         else:
@@ -165,7 +174,6 @@ class Shell:
                 stdout_append,
                 stderr_append,
                 job,
-                pipe
             )
 
     def _exit(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:

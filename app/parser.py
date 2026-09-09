@@ -10,6 +10,7 @@ class Parser:
         state = {
             # want to add commands list for pipe
             "command": [],
+            "pipe_commands": [],
             "stdout": None,
             "stdout_append": False,
             "stderr": None,
@@ -34,11 +35,16 @@ class Parser:
 
             elif token == "|":
                 state["pipe"] = True
-
+                state["pipe_commands"].append(state["command"])
+                state["command"] = []
+                               
             else:
-                state["command"].append(token)
+                state["command"].append(token) 
 
             i += 1
+        if state["pipe"] and state["command"]:
+            state["pipe_commands"].append(state["command"])
+            state["command"] = []
 
         return state
 

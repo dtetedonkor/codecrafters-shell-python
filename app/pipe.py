@@ -5,6 +5,12 @@ class Pipe:
         """ we want
             output --> input  """
 
-    def run(self, command_list, stdout, stderr):
-        pass
+    def execute(
+           self,
+           pipe_list: list[list],
+           stdout = None,
+           stderr = None,
+           stdout_append = False,
+           stderr_append = False,):
+           print(pipe_list)
 
