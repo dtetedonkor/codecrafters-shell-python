@@ -126,9 +126,7 @@ class Shell:
                         stdout_append,
                         stderr_append,
                     )
-                    
-        
-
+                
         if not command_list:
             return
 

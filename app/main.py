@@ -37,7 +37,8 @@ def main():
             continue
 
         shell.execute(parsed_input)
-        jobs.check_done()
+        if not jobs.jobs_list:
+            jobs.check_done()
         
 
 
