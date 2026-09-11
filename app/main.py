@@ -4,6 +4,7 @@ from .shell import Shell
 from .completer import Completer
 from .jobs import Jobs
 from .pipe import Pipe
+import asyncio
 
 def main():
     parser = Parser()

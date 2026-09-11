@@ -2,7 +2,9 @@ import os
 import shutil
 import subprocess
 import sys
+import asyncio
 from contextlib import ExitStack
+
 
 
 class Shell:
@@ -119,7 +121,7 @@ class Shell:
 
         if pipe:
                     # handle the pipe
-                    self.pipe.execute(
+                    self.pipe.execute( 
                         pipe_list,
                         stdout,
                         stderr,
