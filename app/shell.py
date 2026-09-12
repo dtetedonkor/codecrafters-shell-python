@@ -125,8 +125,6 @@ class Shell:
                         pipe_list,
                         stdout,
                         stderr,
-                        stdout_append,
-                        stderr_append,
                     )
                 
         if not command_list:
@@ -193,7 +191,7 @@ class Shell:
             stderr.write(f"cd: {path}: No such file or directory\n")
 
     def _echo(self, args, stdout=sys.stdout, stderr=sys.stderr):
-        stdout.write(" ".join(args) + "\n")
+            print(" ".join(args), file=stdout)
 
     def _pwd(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
         stdout.write(os.getcwd() + "\n")
