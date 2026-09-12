@@ -1,10 +1,10 @@
 import readline
-from .parser import Parser
-from .shell import Shell
-from .completer import Completer
-from .jobs import Jobs
-from .pipe import Pipe
-import asyncio
+from parser import Parser
+from shell import Shell
+from completer import Completer
+from jobs import Jobs
+from pipe import Pipe
+
 
 def main():
     parser = Parser()

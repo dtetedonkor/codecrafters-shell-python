@@ -2,7 +2,7 @@ import os
 import sys
 import shutil
 import subprocess
-from .shell import Shell
+from shell import Shell
 
 
 class Pipe:

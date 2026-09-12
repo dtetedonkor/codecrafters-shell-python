@@ -199,7 +199,10 @@ class Shell:
     def _complete(self, args, stdout=sys.stdout, stderr=sys.stderr):
         command = ""
         path = ""
-        flag = args[0]
+        flag = None
+        if args:
+            flag = args[0]
+       
         if flag == "-p":
             command = args[1]
             if command in self.completions:
