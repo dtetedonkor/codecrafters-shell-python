@@ -2,7 +2,6 @@ import os
 import shutil
 import subprocess
 import sys
-import asyncio
 from contextlib import ExitStack
 
 
@@ -17,6 +16,7 @@ class Shell:
             "exit": self._exit,
             "complete": self._complete,
             "jobs" : self._jobs,
+            "history" : self._history,
         }
         # Share the same dict readline's Completer reads from, so `complete -C`
         # registrations made here are actually visible during tab-completion.
@@ -236,5 +236,8 @@ class Shell:
                 stdout.write(f"{cmd}: not found\n")
 
     def _jobs(self, args, stdout=sys.stdout, stderr=sys.stderr):
-        self.jobs.list_jobs(stdout)           
+        self.jobs.list_jobs(stdout)          
+
+    def _history(self,args,stdout=sys.stdout,stderr=sys.stderr):
+        pass 
             

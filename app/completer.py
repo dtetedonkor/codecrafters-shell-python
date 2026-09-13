@@ -18,6 +18,16 @@ class Completer:
         # across completions too. Call refresh_path_cache() if PATH changes.
         self._exec_cache: set[str] | None = None
 
+    def comp_init(self):
+                # Fetch current word delimiters
+        current_delims = readline.get_completer_delims()
+
+        # Remove the hyphen from the delimiter string
+        new_delims = current_delims.replace("-", "")
+        readline.set_completer_delims(new_delims)
+        readline.set_completer(self.completer)
+        readline.parse_and_bind("Tab: Complete")
+        
     def refresh_path_cache(self) -> None:
         """Force a rescan of PATH on the next completion request."""
         self._exec_cache = None

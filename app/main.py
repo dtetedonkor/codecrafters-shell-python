@@ -1,9 +1,8 @@
-import readline
-from parser import Parser
-from shell import Shell
-from completer import Completer
-from jobs import Jobs
-from pipe import Pipe
+from .parser import Parser
+from .shell import Shell
+from .completer import Completer
+from .jobs import Jobs
+from .pipe import Pipe
 
 
 def main():
@@ -13,14 +12,7 @@ def main():
     pipe = Pipe()
     shell = Shell(completer,jobs,pipe)
     
-    # Fetch current word delimiters
-    current_delims = readline.get_completer_delims()
-
-    # Remove the hyphen from the delimiter string
-    new_delims = current_delims.replace("-", "")
-    readline.set_completer_delims(new_delims)
-    readline.set_completer(completer.completer)
-    readline.parse_and_bind("Tab: Complete")
+    completer.comp_init()
     
     while True:
         
