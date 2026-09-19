@@ -241,6 +241,13 @@ class Shell:
         self.jobs.list_jobs(stdout)          
 
     def _history(self,args,stdout=sys.stdout,stderr=sys.stderr):
+        last_indx = len(self.history_list)-1
+        if args:
+            recent = int(args[0])
+        else:
+            recent = last_indx+1
         for index,cmd in enumerate(self.history_list):
-            print(f"{index+1} {cmd}")
+            
+            if  index > last_indx - recent:
+                print(f"{index+1} {cmd}")
             
