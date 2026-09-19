@@ -24,6 +24,7 @@ class Shell:
         self.jobs = jobs
         self.pipe = pipe
         self.history_list = []
+    
 
     def run_program(
             self,
@@ -241,6 +242,20 @@ class Shell:
         self.jobs.list_jobs(stdout)          
 
     def _history(self,args,stdout=sys.stdout,stderr=sys.stderr):
+
+        if args and args[0]  == "-r" and args[1]:
+                path = args[1]
+
+                exit = os.path.exists(path)
+
+                if exit:
+                    with ExitStack() as stack:
+                                file = stack.enter_context(open(path,'r'))
+                                for line in file:
+                                    self.history_list.append(line.strip()) 
+              
+                    return
+        
         last_indx = len(self.history_list)-1
         if args:
             recent = int(args[0])
