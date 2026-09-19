@@ -23,6 +23,7 @@ class Shell:
         self.completions = completer.completions if completer is not None else {}
         self.jobs = jobs
         self.pipe = pipe
+        self.history_list = []
 
     def run_program(
             self,
@@ -119,6 +120,7 @@ class Shell:
         pipe: bool = parsed["pipe"]
         pipe_list: list[list] = parsed["pipe_commands"]
 
+        self.history_list.append(" ".join(command_list))
         if pipe:
                     # handle the pipe
                     self.pipe.execute( 
@@ -239,5 +241,6 @@ class Shell:
         self.jobs.list_jobs(stdout)          
 
     def _history(self,args,stdout=sys.stdout,stderr=sys.stderr):
-        pass 
+        for index,cmd in enumerate(self.history_list):
+            print(f"{index+1} {cmd}")
             
