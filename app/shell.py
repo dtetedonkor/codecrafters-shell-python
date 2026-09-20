@@ -246,9 +246,9 @@ class Shell:
         if args and args[0]  == "-r" and args[1]:
                 path = args[1]
 
-                exit = os.path.exists(path)
+                exist = os.path.exists(path)
 
-                if exit:
+                if exist:
                     with ExitStack() as stack:
                                 file = stack.enter_context(open(path,'r'))
                                 for line in file:
@@ -256,6 +256,15 @@ class Shell:
               
                     return
         
+        if args and args[0]  == "-w" and args[1]:
+                    path = args[1]
+                    
+                    with ExitStack() as stack:
+                                    file = stack.enter_context(open(path,"a"))
+                                    for cmd in self.history_list:
+                                         file.write(cmd+"\n")
+                    
+                    return
         last_indx = len(self.history_list)-1
         if args:
             recent = int(args[0])
