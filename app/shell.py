@@ -260,11 +260,20 @@ class Shell:
                     path = args[1]
                     
                     with ExitStack() as stack:
-                                    file = stack.enter_context(open(path,"a"))
+                                    file = stack.enter_context(open(path,"w"))
                                     for cmd in self.history_list:
                                          file.write(cmd+"\n")
                     
                     return
+        if args and args[0]  == "-a" and args[1]:
+                            path = args[1]
+                            
+                            with ExitStack() as stack:
+                                            file = stack.enter_context(open(path,"a"))
+                                            for cmd in self.history_list:
+                                                 file.write(cmd+"\n")
+                            
+                            return
         last_indx = len(self.history_list)-1
         if args:
             recent = int(args[0])
