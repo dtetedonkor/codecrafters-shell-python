@@ -1,8 +1,10 @@
+import os
 from .parser import Parser
 from .shell import Shell
 from .completer import Completer
 from .jobs import Jobs
 from .pipe import Pipe
+from .history import History
 
 
 def main():
@@ -10,9 +12,11 @@ def main():
     completer = Completer()
     jobs = Jobs()
     pipe = Pipe()
-    shell = Shell(completer,jobs,pipe)
-    
+    history  = History()
+    shell = Shell(completer,jobs,pipe,history)
+    HIST_FILE = os.environ.get("HISTFILE")
     completer.comp_init()
+    history.hist_init(HIST_FILE)
     
     while True:
         

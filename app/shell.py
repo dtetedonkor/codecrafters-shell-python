@@ -7,7 +7,7 @@ from contextlib import ExitStack
 
 
 class Shell:
-    def __init__(self, completer=None, jobs= None, pipe = None):
+    def __init__(self, completer=None, jobs= None, pipe = None, history= None):
         self.builtin = {
             "cd": self._cd,
             "echo": self._echo,
@@ -23,8 +23,7 @@ class Shell:
         self.completions = completer.completions if completer is not None else {}
         self.jobs = jobs
         self.pipe = pipe
-        self.history_list = []
-        self.written_count = 0
+        self.history = history
     
 
     def run_program(
@@ -122,7 +121,7 @@ class Shell:
         pipe: bool = parsed["pipe"]
         pipe_list: list[list] = parsed["pipe_commands"]
 
-        self.history_list.append(" ".join(command_list))
+        self.history.history_list.append(" ".join(command_list))
         if pipe:
                     # handle the pipe
                     self.pipe.execute( 
@@ -242,49 +241,19 @@ class Shell:
     def _jobs(self, args, stdout=sys.stdout, stderr=sys.stderr):
         self.jobs.list_jobs(stdout)          
 
-    def _history(self,args,stdout=sys.stdout,stderr=sys.stderr):
+    def _history(self, args, stdout=sys.stdout, stderr=sys.stderr):
 
-        if args and args[0]  == "-r" and args[1]:
-                path = args[1]
+        if args and args[0] == "-r" and len(args) > 1:
+            self.history.read(args[1])
+            return
 
-                exist = os.path.exists(path)
+        if args and args[0] == "-w" and len(args) > 1:
+            self.history.write(args[1])
+            return
 
-                if exist:
-                    with ExitStack() as stack:
-                                file = stack.enter_context(open(path,'r'))
-                                for line in file:
-                                    self.history_list.append(line.strip()) 
-              
-                    return
-        
-        if args and args[0]  == "-w" and args[1]:
-                    path = args[1]
-                    
-                    with ExitStack() as stack:
-                                    file = stack.enter_context(open(path,"w"))
-                                    for cmd in self.history_list:
-                                         file.write(cmd+"\n")
-                    
-                    return
-        if args and args[0]  == "-a" and args[1]:
-                    path = args[1]
-                    new_items = self.history_list[self.written_count:]
-                    if not new_items:
-                        return
+        if args and args[0] == "-a" and len(args) > 1:
+            self.history.append(args[1])
+            return
 
-                    with open(path,"a") as f:
-                        for line in new_items:
-                             f.write(line if line.endswith("\n") else line + "\n")
-                    self.written_count = len(self.history_list)
-                     
-                    return 
-        last_indx = len(self.history_list)-1
-        if args:
-            recent = int(args[0])
-        else:
-            recent = last_indx+1
-        for index,cmd in enumerate(self.history_list):
-            
-            if  index > last_indx - recent:
-                print(f"{index+1} {cmd}")
-            
+        recent = int(args[0]) if args else None
+        self.history.display(recent)
