@@ -178,6 +178,7 @@ class Shell:
             )
 
     def _exit(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:
+        self.history.hist_onexit(os.environ.get("HISTFILE"))
         sys.exit(0)
 
     def _cd(self, args, stdout=sys.stdout, stderr=sys.stderr) -> None:

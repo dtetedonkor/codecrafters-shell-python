@@ -12,6 +12,10 @@ class History:
         if envir:
             self.read(envir)
 
+    def hist_onexit(self, envir=None):
+        if envir:
+            self.write(envir)
+
     def read(self, path):
         if os.path.exists(path):
             with ExitStack() as stack:
