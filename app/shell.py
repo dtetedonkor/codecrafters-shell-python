@@ -24,6 +24,7 @@ class Shell:
         self.jobs = jobs
         self.pipe = pipe
         self.history_list = []
+        self.written_count = 0
     
 
     def run_program(
@@ -266,14 +267,17 @@ class Shell:
                     
                     return
         if args and args[0]  == "-a" and args[1]:
-                            path = args[1]
-                            
-                            with ExitStack() as stack:
-                                            file = stack.enter_context(open(path,"a"))
-                                            for cmd in self.history_list:
-                                                 file.write(cmd+"\n")
-                            
-                            return
+                    path = args[1]
+                    new_items = self.history_list[self.written_count:]
+                    if not new_items:
+                        return
+
+                    with open(path,"a") as f:
+                        for line in new_items:
+                             f.write(line if line.endswith("\n") else line + "\n")
+                    self.written_count = len(self.history_list)
+                     
+                    return 
         last_indx = len(self.history_list)-1
         if args:
             recent = int(args[0])
