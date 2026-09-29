@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 import sys
+from .declare import print_desc 
 from contextlib import ExitStack
 
 
@@ -260,5 +261,8 @@ class Shell:
         recent = int(args[0]) if args else None
         self.history.display(recent)
 
-    def _declare(self):
-        pass
+    def _declare(self,args,stdout=sys.stdout,stderr=sys.stderr):
+           if args and args[0] == "-p" and len(args) > 1:
+                    print_desc(args[1])
+                    return
+        
