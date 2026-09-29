@@ -5,6 +5,7 @@ from .completer import Completer
 from .jobs import Jobs
 from .pipe import Pipe
 from .history import History
+from .declare  import Declare
 
 
 def main():
@@ -13,7 +14,9 @@ def main():
     jobs = Jobs()
     pipe = Pipe()
     history  = History()
-    shell = Shell(completer,jobs,pipe,history)
+    declare = Declare()
+
+    shell = Shell(completer,jobs,pipe,history,declare)
     HIST_FILE = os.environ.get("HISTFILE")
     completer.comp_init()
     history.hist_init(HIST_FILE)

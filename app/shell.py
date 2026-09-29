@@ -2,13 +2,12 @@ import os
 import shutil
 import subprocess
 import sys
-from .declare import print_desc 
 from contextlib import ExitStack
 
 
 
 class Shell:
-    def __init__(self, completer=None, jobs= None, pipe = None, history= None):
+    def __init__(self, completer=None, jobs= None, pipe = None, history= None, declare= None):
         self.builtin = {
             "cd": self._cd,
             "echo": self._echo,
@@ -26,7 +25,7 @@ class Shell:
         self.jobs = jobs
         self.pipe = pipe
         self.history = history
-    
+        self.declare = declare
 
     def run_program(
             self,
@@ -263,6 +262,10 @@ class Shell:
 
     def _declare(self,args,stdout=sys.stdout,stderr=sys.stderr):
            if args and args[0] == "-p" and len(args) > 1:
-                    print_desc(args[1])
+                    self.declare.print_var(args[1])
                     return
-        
+           if args:
+                    self.declare.store_var(args[0])
+                    return
+           
+           
