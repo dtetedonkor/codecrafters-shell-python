@@ -22,7 +22,7 @@ class Jobs:
         self.jobs_list = []
         self.next_job_number = 1
 
-    def run(self, command_list, stdout, stderr):
+    def run(self, command_list, stdout, stderr) -> None:
         process = subprocess.Popen(
             command_list,
             stdout=stdout,

@@ -17,6 +17,7 @@ class Shell:
             "complete": self._complete,
             "jobs" : self._jobs,
             "history" : self._history,
+            "declare" : self._declare,
         }
         # Share the same dict readline's Completer reads from, so `complete -C`
         # registrations made here are actually visible during tab-completion.
@@ -258,3 +259,6 @@ class Shell:
 
         recent = int(args[0]) if args else None
         self.history.display(recent)
+
+    def _declare(self):
+        pass

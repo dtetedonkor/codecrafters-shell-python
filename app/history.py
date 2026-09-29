@@ -8,28 +8,28 @@ class History:
         self.written_count = 0
 
 
-    def hist_init(self, envir= None):
+    def hist_init(self, envir= None) -> None:
         if envir:
             self.read(envir)
 
-    def hist_onexit(self, envir=None):
+    def hist_onexit(self, envir=None) -> None:
         if envir:
             self.write(envir)
 
-    def read(self, path):
+    def read(self, path) -> None:
         if os.path.exists(path):
             with ExitStack() as stack:
                 file = stack.enter_context(open(path, "r"))
                 for line in file:
                     self.history_list.append(line.strip())
 
-    def write(self, path):
+    def write(self, path) -> None:
         with ExitStack() as stack:
             file = stack.enter_context(open(path, "w"))
             for cmd in self.history_list:
                 file.write(cmd + "\n")
 
-    def append(self, path):
+    def append(self, path) -> None:
         new_items = self.history_list[self.written_count:]
 
         if not new_items:
@@ -41,7 +41,7 @@ class History:
 
         self.written_count = len(self.history_list)
 
-    def display(self, recent=None):
+    def display(self, recent=None) -> None:
         last_index = len(self.history_list) - 1
 
         if recent is None:
