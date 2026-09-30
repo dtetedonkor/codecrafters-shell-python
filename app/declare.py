@@ -1,3 +1,4 @@
+import re
 
 class Declare:
 
@@ -12,4 +13,12 @@ class Declare:
             
     def store_var(self, arg):
         NAME, VALUE = arg.split("=")
+      
+        if not bool(re.match(r"^[a-zA-Z0-9_]+$", NAME)) or NAME[0].isdigit():
+            print(f"declare: `{arg}\': not a valid identifier")
+            return
+       
+                
+   
         self.vars[NAME] = VALUE
+        
