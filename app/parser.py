@@ -10,7 +10,7 @@ class Parser:
         self.vars = declare.vars if declare is not None else {}
     @staticmethod   
     def extract_var(s: str) -> str:
-        match = re.search(r"\((.*?)\)", text)
+        match = re.search(r"\((.*?)\)", s)
 
         if match:
             result = match.group(1)
