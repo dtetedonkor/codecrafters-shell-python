@@ -1,12 +1,19 @@
 import shlex
 
+from .declare import Declare
 
 class Parser:
     # for the parsing of pipe I want to create a list[list]
+    def __init__(self,declare = None):
+
+        self.vars = declare.vars if declare is not None else {}
+       
+
     """ the list[list] """
     def parse(self, user_in: str) -> dict:
         tokens = self._tokenize(user_in)
-
+        
+        
         state = {
             # want to add commands list for pipe
             "command": [],
@@ -24,6 +31,11 @@ class Parser:
         while i < len(tokens):
             token = tokens[i]
 
+            for index, char in enumerate(token):
+                if char == "$" and self.vars.get(token[index+1:]):  
+                    token = token[:index] + self.vars[token[index+1:]]
+                  
+            
             if token in (">", ">>"):
                 i = self._parse_stdout(tokens, i, state)
 

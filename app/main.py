@@ -9,12 +9,13 @@ from .declare  import Declare
 
 
 def main():
-    parser = Parser()
+    declare = Declare()
+    parser = Parser(declare)
     completer = Completer()
     jobs = Jobs()
     pipe = Pipe()
     history  = History()
-    declare = Declare()
+   
 
     shell = Shell(completer,jobs,pipe,history,declare)
     HIST_FILE = os.environ.get("HISTFILE")
