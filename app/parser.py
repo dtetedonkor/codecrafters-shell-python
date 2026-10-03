@@ -4,24 +4,22 @@ from .declare import Declare
 
 
 class Parser:
-    # for the parsing of pipe I want to create a list[list]
-    def __init__(self,declare = None):
-
+    def __init__(self, declare=None):
+        # Share the same dict object as Declare so new variables are visible here.
+        # Declare must only mutate it (self.vars[name] = value), never reassign it.
         self.vars = declare.vars if declare is not None else {}
-     
-    def expand(self, token):
+
+    def expand(self, token: str) -> str:
         def repl(m):
             name = m.group(1) or m.group(2)       # ${name} or $name
-            return str(self.vars.get(name, ""))   # unset vars expand to empty string, like a shell
+            return str(self.vars.get(name, ""))   # unset vars -> empty string
 
         return re.sub(r"\$(?:\{(\w+)\}|(\w+))", repl, token)
 
     def parse(self, user_in: str) -> dict:
         tokens = self._tokenize(user_in)
-        
-        
+
         state = {
-            # want to add commands list for pipe
             "command": [],
             "pipe_commands": [],
             "stdout": None,
@@ -35,29 +33,31 @@ class Parser:
         i = 0
 
         while i < len(tokens):
+            raw = tokens[i]
 
-           
-            
-            token = self.expand(tokens[i])
-                     
-            if token in (">", ">>"):
+            # Operators are recognised on the raw token, before expansion
+            if raw in (">", ">>"):
                 i = self._parse_stdout(tokens, i, state)
 
-            elif token == "2":
+            elif raw == "2":
                 i = self._parse_stderr(tokens, i, state)
 
-            elif token == "&":
+            elif raw == "&":
                 state["job"] = True
 
-            elif token == "|":
+            elif raw == "|":
                 state["pipe"] = True
                 state["pipe_commands"].append(state["command"])
                 state["command"] = []
-                               
+
             else:
-                state["command"].append(token) 
+                token = self.expand(raw)
+                # Unset variable expanded to nothing: pass no arg at all
+                if token != "":
+                    state["command"].append(token)
 
             i += 1
+
         if state["pipe"] and state["command"]:
             state["pipe_commands"].append(state["command"])
             state["command"] = []
@@ -83,7 +83,7 @@ class Parser:
         operator = tokens[i]
 
         if i + 1 < len(tokens):
-            state["stdout"] = tokens[i + 1]
+            state["stdout"] = self.expand(tokens[i + 1])   # allow $VAR in filenames
             state["stdout_append"] = operator == ">>"
             return i + 1
 
@@ -101,9 +101,8 @@ class Parser:
             return i
 
         if i + 2 < len(tokens):
-            state["stderr"] = tokens[i + 2]
+            state["stderr"] = self.expand(tokens[i + 2])   # allow $VAR in filenames
             state["stderr_append"] = operator == ">>"
             return i + 2
 
         return i + 1
-
