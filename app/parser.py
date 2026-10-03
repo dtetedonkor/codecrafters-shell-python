@@ -10,11 +10,12 @@ class Parser:
         self.vars = declare.vars if declare is not None else {}
     @staticmethod   
     def extract_var(s: str) -> str:
-        match = re.search(r"\((.*?)\)", s)
+        pattern = r"\{(.*?)\}"
 
-        if match:
-            result = match.group(1)
-            return result
+        # Find all matches
+        matches = re.findall(pattern, s)
+
+        return matches
 
     def parse(self, user_in: str) -> dict:
         tokens = self._tokenize(user_in)
@@ -36,14 +37,11 @@ class Parser:
 
         while i < len(tokens):
             token = tokens[i]
-
-            for index, char in enumerate(token):
+            matches = self.extract_var(token)
+            for match in matches:
+                result = re.sub(f"{{{match}}}", self.vars.get(match),token)
+                print(result)
            
-                if char == "$" and token[index+1] != "{" and self.vars.get(token[index+1:]):  
-                    token = token[:index] + self.vars[token[index+1:]]
-                elif char == "$" and token[index+1] == "{":
-                     var = self.extract_var(token[index+1:])
-                     print(var)
                   
             
             if token in (">", ">>"):
