@@ -1,15 +1,21 @@
 import shlex
-
+import re
 from .declare import Declare
+
 
 class Parser:
     # for the parsing of pipe I want to create a list[list]
     def __init__(self,declare = None):
 
         self.vars = declare.vars if declare is not None else {}
-       
+    @staticmethod   
+    def extract_var(s: str) -> str:
+        match = re.search(r"\((.*?)\)", text)
 
-    """ the list[list] """
+        if match:
+            result = match.group(1)
+            return result
+
     def parse(self, user_in: str) -> dict:
         tokens = self._tokenize(user_in)
         
@@ -32,8 +38,12 @@ class Parser:
             token = tokens[i]
 
             for index, char in enumerate(token):
-                if char == "$" and self.vars.get(token[index+1:]):  
+           
+                if char == "$" and token[index+1] != "{" and self.vars.get(token[index+1:]):  
                     token = token[:index] + self.vars[token[index+1:]]
+                elif char == "$" and token[index+1] == "{":
+                     var = self.extract_var(token[index+1:])
+                     print(var)
                   
             
             if token in (">", ">>"):
