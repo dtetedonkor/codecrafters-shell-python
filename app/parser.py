@@ -8,14 +8,13 @@ class Parser:
     def __init__(self,declare = None):
 
         self.vars = declare.vars if declare is not None else {}
-    @staticmethod   
-    def extract_var(s: str) -> str:
-        pattern = r"\{(.*?)\}"
+     
+    def expand(self, token):
+        def repl(m):
+            name = m.group(1) or m.group(2)       # ${name} or $name
+            return str(self.vars.get(name, ""))   # unset vars expand to empty string, like a shell
 
-        # Find all matches
-        matches = re.findall(pattern, s)
-
-        return matches
+        return re.sub(r"\$(?:\{(\w+)\}|(\w+))", repl, token)
 
     def parse(self, user_in: str) -> dict:
         tokens = self._tokenize(user_in)
@@ -36,14 +35,11 @@ class Parser:
         i = 0
 
         while i < len(tokens):
-            token = tokens[i]
-            matches = self.extract_var(token)
-            for match in matches:
-                result = re.sub(f"{{{match}}}", self.vars.get(match),token)
-                print(result)
+
            
-                  
             
+            token = self.expand(tokens[i])
+                     
             if token in (">", ">>"):
                 i = self._parse_stdout(tokens, i, state)
 
